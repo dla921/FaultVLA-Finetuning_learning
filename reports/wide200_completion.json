@@ -1,0 +1,21 @@
+﻿{
+    "completed_at":  "2026-10-27T16:32:08.4095203+09:00",
+    "collection_complete":  true,
+    "full_validation_passed":  true,
+    "finalization_complete":  true,
+    "accepted_episode_directories":  200,
+    "observations":  94000,
+    "images":  188000,
+    "splits":  {
+                   "train":  160,
+                   "validation":  20,
+                   "test":  20
+               },
+    "excluded_attempts":  47,
+    "interrupted_artifacts_preserved":  12,
+    "original_files_unchanged":  82,
+    "compatibility_audit":  "results/wide_action_space_audit.json",
+    "compatibility_report":  "docs/SO101_ACTION_COMPATIBILITY.md",
+    "training_on_wide200_performed":  false,
+    "actual_joint_soft_limit_overshoot_disclosed":  true
+}

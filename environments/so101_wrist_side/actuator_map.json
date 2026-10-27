@@ -1,0 +1,197 @@
+[
+  {
+    "index": 0,
+    "actuator": "shoulder_pan",
+    "joint": "shoulder_pan",
+    "qpos_address": 0,
+    "dof_address": 0,
+    "ctrlrange_rad": [
+      -1.91986,
+      1.91986
+    ],
+    "forcerange_Nm": [
+      -2.94,
+      2.94
+    ]
+  },
+  {
+    "index": 1,
+    "actuator": "shoulder_lift",
+    "joint": "shoulder_lift",
+    "qpos_address": 1,
+    "dof_address": 1,
+    "ctrlrange_rad": [
+      -1.74533,
+      1.74533
+    ],
+    "forcerange_Nm": [
+      -2.94,
+      2.94
+    ]
+  },
+  {
+    "index": 2,
+    "actuator": "elbow_flex",
+    "joint": "elbow_flex",
+    "qpos_address": 2,
+    "dof_address": 2,
+    "ctrlrange_rad": [
+      -1.69,
+      1.69
+    ],
+    "forcerange_Nm": [
+      -2.94,
+      2.94
+    ]
+  },
+  {
+    "index": 3,
+    "actuator": "wrist_flex",
+    "joint": "wrist_flex",
+    "qpos_address": 3,
+    "dof_address": 3,
+    "ctrlrange_rad": [
+      -1.65806,
+      1.65806
+    ],
+    "forcerange_Nm": [
+      -2.94,
+      2.94
+    ]
+  },
+  {
+    "index": 4,
+    "actuator": "wrist_roll",
+    "joint": "wrist_roll",
+    "qpos_address": 4,
+    "dof_address": 4,
+    "ctrlrange_rad": [
+      -2.74385,
+      2.84121
+    ],
+    "forcerange_Nm": [
+      -2.94,
+      2.94
+    ]
+  },
+  {
+    "index": 5,
+    "actuator": "finger1_motor1",
+    "joint": "finger1_motor1",
+    "qpos_address": 5,
+    "dof_address": 5,
+    "ctrlrange_rad": [
+      -1.570796326768256,
+      1.570796326821537
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 6,
+    "actuator": "finger1_motor2",
+    "joint": "finger1_motor2",
+    "qpos_address": 17,
+    "dof_address": 15,
+    "ctrlrange_rad": [
+      -1.5707963267948883,
+      1.5707963267949048
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 7,
+    "actuator": "finger2_motor1",
+    "joint": "finger2_motor1",
+    "qpos_address": 22,
+    "dof_address": 19,
+    "ctrlrange_rad": [
+      -1.5707963267682898,
+      1.5707963268215033
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 8,
+    "actuator": "finger2_motor2",
+    "joint": "finger2_motor2",
+    "qpos_address": 34,
+    "dof_address": 29,
+    "ctrlrange_rad": [
+      -1.5707963267948954,
+      1.5707963267948977
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 9,
+    "actuator": "finger3_motor1",
+    "joint": "finger3_motor1",
+    "qpos_address": 39,
+    "dof_address": 33,
+    "ctrlrange_rad": [
+      -1.5707963267948988,
+      1.5707963267948943
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 10,
+    "actuator": "finger3_motor2",
+    "joint": "finger3_motor2",
+    "qpos_address": 51,
+    "dof_address": 43,
+    "ctrlrange_rad": [
+      -1.570796326794957,
+      1.5707963267948362
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 11,
+    "actuator": "finger4_motor1",
+    "joint": "finger4_motor1",
+    "qpos_address": 56,
+    "dof_address": 47,
+    "ctrlrange_rad": [
+      -1.5707889966987234,
+      1.5708036568910697
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  },
+  {
+    "index": 12,
+    "actuator": "finger4_motor2",
+    "joint": "finger4_motor2",
+    "qpos_address": 68,
+    "dof_address": 57,
+    "ctrlrange_rad": [
+      -1.5707963267948957,
+      1.5707963267948974
+    ],
+    "forcerange_Nm": [
+      -0.15,
+      0.15
+    ]
+  }
+]

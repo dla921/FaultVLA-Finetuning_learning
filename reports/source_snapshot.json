@@ -1,0 +1,6 @@
+{
+  "upstream": "https://github.com/OpenHelix-Team/VLA-Adapter",
+  "commit": "23fa0c9c159e2aa04341cdd3e924f44061311060",
+  "scope": "Runtime and training source snapshot, excluding caches, logs and upstream figures; MIT license retained",
+  "original_environment_preserved": true
+}

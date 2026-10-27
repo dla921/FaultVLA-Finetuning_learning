@@ -1,0 +1,94 @@
+{
+  "checkpoint": "checkpoints/LIBERO-Spatial-Pro",
+  "checkpoint_repo": "VLA-Adapter/LIBERO-Spatial-Pro",
+  "checkpoint_revision": "cb023c6771fc62ea729d218f09ac0583c14f59d4",
+  "unnorm_key": "libero_spatial_no_noops",
+  "task": "pick up the cup from the first table and place it on the second table",
+  "control_dt": 0.05,
+  "replan_actions": 1,
+  "max_steps": 400,
+  "translation_scale_m": 0.05,
+  "rotation_scale_rad": 0.5,
+  "world_to_policy_rotation": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "world_to_policy_translation_m": [
+    0,
+    0,
+    0
+  ],
+  "palm_to_policy_tool_rotvec_rad": [
+    0,
+    0,
+    0
+  ],
+  "hand_open_rad": [
+    -0.8,
+    0.8,
+    -0.8,
+    0.8,
+    -0.8,
+    0.8,
+    -0.8,
+    0.8
+  ],
+  "hand_closed_rad": [
+    0.5,
+    -0.5,
+    0.5,
+    -0.5,
+    0.5,
+    -0.5,
+    1.5,
+    -1.5
+  ],
+  "joint_target_speed_rad_s": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "actual_speed_stop_rad_s": 12,
+  "ik_position_tolerance_m": 0.01,
+  "ik_orientation_tolerance_rad": 0.15,
+  "front_camera": "front_rgbd",
+  "wrist_camera": "vla_wrist",
+  "max_tracking_error_rad": [
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.15,
+    0.15,
+    0.15,
+    0.15,
+    0.15,
+    0.15,
+    0.15,
+    0.15
+  ]
+}

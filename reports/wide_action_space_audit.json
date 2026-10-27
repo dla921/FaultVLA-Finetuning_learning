@@ -1,0 +1,131 @@
+{
+  "scope": "Read-only audit of all 200 manifest episodes and 94000 recorded 20Hz samples; no implementation changes",
+  "dataset": "data/cartesian_demos_v2_wide200",
+  "method": "Concatenate actions_7d, state_8d, joint_positions_rad, joint_targets_rad, joint_velocities_rad_s from every manifest trajectory.npz; compare positions/targets with named joints in original MuJoCo scene.xml model",
+  "episodes": 200,
+  "recorded_samples": 94000,
+  "control_dt_s": 0.05,
+  "motor_names": [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll",
+    "finger1_motor1",
+    "finger1_motor2",
+    "finger2_motor1",
+    "finger2_motor2",
+    "finger3_motor1",
+    "finger3_motor2",
+    "finger4_motor1",
+    "finger4_motor2"
+  ],
+  "joint_position_unit": "rad",
+  "joint_velocity_unit": "rad/s",
+  "action_min": [
+    -0.04154783623062319,
+    -0.21903442648318117,
+    -0.0795843030061244,
+    -0.013749004510105453,
+    -0.04739282117954943,
+    -0.08812590432764641,
+    0.0
+  ],
+  "action_max": [
+    0.16177268592936112,
+    0.30400752469834924,
+    0.10291420628643244,
+    0.01236118066164759,
+    0.026960964228978514,
+    0.11941801013799715,
+    1.0
+  ],
+  "state_8d_min": [
+    0.2672823369503021,
+    -0.1131436750292778,
+    0.12534263730049133,
+    0.8983782529830933,
+    0.7880139350891113,
+    0.7410188913345337,
+    0.001345944358035922,
+    -0.03999999910593033
+  ],
+  "state_8d_max": [
+    0.33837467432022095,
+    0.1905411183834076,
+    0.1889016330242157,
+    1.496923804283142,
+    1.6045117378234863,
+    1.6130400896072388,
+    0.03999999910593033,
+    -0.001345944358035922
+  ],
+  "binary_hand_values": [
+    0,
+    1
+  ],
+  "max_recorded_joint_speed_rad_s": 7.700709961314091,
+  "actual_speed_stop_threshold_rad_s": 12,
+  "speed_caveat": "Maximum is over stored 20Hz samples, not every physics step; adapter checks stop threshold at each physics step. Target slew limits are not actual joint speed limits.",
+  "max_recorded_motor_target_joint_limit_excess_rad": 0.0,
+  "actual_position_limit_exceedance": {
+    "joint": "wrist_flex",
+    "sample_count": 6264,
+    "minimum_recorded_rad": -1.6591055430112853,
+    "model_lower_bound_rad": -1.658063,
+    "maximum_excess_rad": 0.0010425430112852574,
+    "other_joint_exceedance_counts": 0,
+    "explanation": "MuJoCo joint constraints are soft. Motor commands remain bounded; measured positions are not guaranteed to stay strictly inside the range. Adapter has no measured-position-exceedance stop."
+  },
+  "mapping": {
+    "action_format": [
+      "dx",
+      "dy",
+      "dz",
+      "drotvec_x",
+      "drotvec_y",
+      "drotvec_z",
+      "open"
+    ],
+    "translation_scale_m": 0.05,
+    "rotation_scale_rad": 0.5,
+    "frame": "MuJoCo world (identity world_to_policy frame in dataset)",
+    "orientation_update": "Exp(world_delta_rotvec) @ current_rotation",
+    "arm": "bounded least-squares IK over five arm joints",
+    "hand": "binary open >0.5 selects fixed 8-motor open pose, otherwise closed pose",
+    "state": "palm xyz + tool rotvec + synthetic aperture/-aperture proxy; not thirteen motor positions"
+  },
+  "normalization": {
+    "dataset_actions": "unnormalized dimensionless controller values; not direct meters/radians",
+    "training": "q01/q99 from train split only; first six action axes normalized, binary hand axis unchanged",
+    "checkpoint_caveat": "Original LIBERO checkpoint has shape 8x7 output and 8D proprio but Panda embodiment statistics/semantics do not establish SO-101 compatibility. Train and deploy with newly computed dataset statistics together; do not reuse original LIBERO quantiles."
+  },
+  "verified_replay": {
+    "episode": "train_0000",
+    "records": 470,
+    "max_recorded_state_error": 0.0,
+    "evidence": "results/wide_action_replay_validation.json"
+  },
+  "compatibility_conclusion": "Supported for collected reachable normal cup-transfer trajectories through current ActionAdapter, not arbitrary 6DOF pose goals or independent eight-motor hand control.",
+  "unverified": [
+    "all 200 episodes fixed-action replay",
+    "trained VLA closed-loop task success",
+    "hardware servo units/calibration and safety",
+    "generalization to arbitrary poses/objects",
+    "fault tolerance"
+  ],
+  "evidence": [
+    "src/faultvla/bridge.py:53",
+    "src/faultvla/bridge.py:70",
+    "src/faultvla/bridge.py:88",
+    "src/faultvla/bridge.py:109",
+    "src/faultvla/bridge.py:120",
+    "src/faultvla/bridge.py:129",
+    "src/faultvla/expert_data.py:26",
+    "src/faultvla/limited_training.py:35",
+    "scripts/train_limited.py:61",
+    "environments/so101_wrist_side/robot.xml:135",
+    "VLA-Adapter/experiments/robot/openvla_utils.py:803",
+    "VLA-Adapter/prismatic/extern/hf/modeling_prismatic.py:786"
+  ]
+}

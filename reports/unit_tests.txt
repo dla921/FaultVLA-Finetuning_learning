@@ -1,0 +1,43 @@
+test_encode_inverse_frame_and_orientation (test_action_contract.ContractTests) ... ok
+test_layout_reset_changes_only_object_and_destination (test_action_contract.ContractTests) ... ok
+test_actual_overspeed_stops (test_adapter.AdapterTests) ... ok
+test_frame_conversion (test_adapter.AdapterTests) ... ok
+test_gripper_polarity (test_adapter.AdapterTests) ... ok
+test_invalid_actions (test_adapter.AdapterTests) ... ok
+test_missing_checkpoint_is_error (test_adapter.AdapterTests) ... ok
+test_named_motor_mapping_and_state (test_adapter.AdapterTests) ... ok
+test_per_physics_step_target_slew_and_tracking_guard (test_adapter.AdapterTests) ... ok
+test_physical_steps (test_adapter.AdapterTests) ... ok
+test_policy_translation_and_rotation_affect_motor_targets (test_adapter.AdapterTests) ... ok
+test_rotation_reference_preserves_rotation_across_pi (test_adapter.AdapterTests) ... ok
+test_unreachable_holds_all_motors (test_adapter.AdapterTests) ... ok
+test_chunk_does_not_cross_episode_and_sampling_covers_task (test_limited_training.LimitedTrainingTests) ... ok
+test_gripper_stays_binary_and_action_roundtrip (test_limited_training.LimitedTrainingTests) ... ok
+test_statistics_read_train_only_and_reject_wrong_split (test_limited_training.LimitedTrainingTests) ... ok
+test_real_inference_wrapper_receives_images_state_and_task (test_policy.PolicyRoutingTests) ... ok
+test_upstream_normalization (test_policy.PolicyRoutingTests) ... 2026-10-27 16:58:36.913964: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-10-27 16:58:37.139677: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-10-27 16:58:37.139715: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-10-27 16:58:37.148633: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-10-27 16:58:37.176628: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-10-27 16:58:37.845360: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2026-10-27 16:58:42.325452: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:887] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2026-10-27 16:58:42.344162: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:887] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2026-10-27 16:58:42.344204: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:887] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+ok
+test_restore_and_next_physics_step (test_snapshot.SnapshotTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 14.045s
+
+OK
+Using LIBERO constants:
+  NUM_ACTIONS_CHUNK = 8
+  ACTION_DIM = 7
+  PROPRIO_DIM = 8
+  ACTION_PROPRIO_NORMALIZATION_TYPE = bounds_q99
+If needed, manually set the correct constants in `prismatic/vla/constants.py`!

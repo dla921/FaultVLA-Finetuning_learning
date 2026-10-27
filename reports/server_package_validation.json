@@ -1,0 +1,65 @@
+{
+  "verified_at": "2026-10-27",
+  "environment": "Existing FaultVLA Python 3.10 / WSL / RTX 4060 8GB",
+  "source_snapshot_relocated": true,
+  "unit_tests_passed": 19,
+  "archive_restore_sha256_passed": true,
+  "restored_dataset_validation": {
+    "validated": true,
+    "episodes": 200,
+    "observations": 94000,
+    "images": 188000,
+    "splits": {
+      "train": 160,
+      "validation": 20,
+      "test": 20
+    },
+    "excluded_attempts": 47,
+    "table_edge_gap_m": [
+      0.11027899999999999,
+      0.139746
+    ],
+    "old_table_edge_gap_m": 0.06,
+    "lift_range_m": [
+      0.02305427372584791,
+      0.03202677133305508
+    ],
+    "max_final_half_second_cup_displacement_m": 6.0052991908601236e-05,
+    "limited_training_loader_compatible": true,
+    "train_statistics_episode_count": 160,
+    "test_used_for_training": false
+  },
+  "checkpoint": "VLA-Adapter/LIBERO-Object-Pro",
+  "revision": "afd5c551e4851fb434deaba272c7688e87586cc4",
+  "real_inference_shape": [
+    8,
+    7
+  ],
+  "smoke_train": {
+    "examples": {
+      "train": 2,
+      "validation": 2
+    },
+    "epochs": 1,
+    "trainable_parameters": 6279,
+    "full_inference_export_check": true,
+    "peak_allocated_mib": 3640.5927734375,
+    "best_validation_epoch": 1,
+    "best_validation_loss": 0.4131930555616106
+  },
+  "egl_closed_loop": {
+    "completed_steps": 5,
+    "error": null,
+    "rejected": 0,
+    "clipped": 0,
+    "task_success": null
+  },
+  "not_verified": [
+    "Fresh server environment installation",
+    "Full 160-episode training run",
+    "Full-horizon learned task success",
+    "Real robot",
+    "LoRA/full-head training",
+    "Pixel identity between WSL D3D12 and server EGL"
+  ]
+}

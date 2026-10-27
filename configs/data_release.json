@@ -1,0 +1,33 @@
+{
+  "repository": "dla921/FaultVLA-Finetuning_learning",
+  "tag": "dataset-wide200-v1",
+  "dataset": "cartesian_demos_v2_wide200",
+  "episodes": 200,
+  "splits": {
+    "train": 160,
+    "validation": 20,
+    "test": 20
+  },
+  "assets": [
+    {
+      "name": "wide200-01-of-04.tar.gz",
+      "size": 460330798,
+      "sha256": "d24d02885ba5c0706387d4add205e895778ee577e2a6bc541066185a6c178992"
+    },
+    {
+      "name": "wide200-02-of-04.tar.gz",
+      "size": 457425902,
+      "sha256": "f2fdf219cdfcb633ca369761a2a84ad79224cd8c92eccdc1fc66255bf5079fbf"
+    },
+    {
+      "name": "wide200-03-of-04.tar.gz",
+      "size": 462191901,
+      "sha256": "f414b7803fc121ba80b71604fd87ccbe2ccb817c36e7c02e025cf40bdf8b3833"
+    },
+    {
+      "name": "wide200-04-of-04.tar.gz",
+      "size": 457790300,
+      "sha256": "b3966db05ec00a4142b2ffb2a9a43b4794eaef5b5eb7cd98da25459b530f9379"
+    }
+  ]
+}

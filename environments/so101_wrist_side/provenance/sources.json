@@ -1,0 +1,12 @@
+{
+  "SO101": {
+    "repo": "https://github.com/google-deepmind/mujoco_menagerie",
+    "commit": "f3b6013629c7b94f8ee93fd977b161fa8350f9bc"
+  },
+  "AmazingHand": {
+    "repo": "https://github.com/pollen-robotics/AmazingHand",
+    "commit": "3e8241074df3436a3044ced4881e3bb2133aa725"
+  },
+  "reference_stl_sha256": "405ad12b0a91d88b72b068e29485275ef2f185f26136d5583f9c0677e01f8000",
+  "generated_date_kst": "2026-10-26"
+}

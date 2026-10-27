@@ -1,0 +1,11 @@
+{
+  "zip_sha256": "046ad377a9d18983d472ab66440ebc7af7a8c2be2f88e3497d6dd36821ed11e2",
+  "changed_original_files": [],
+  "original_file_count": 82,
+  "vla_source_commit": "23fa0c9c159e2aa04341cdd3e924f44061311060",
+  "metadata_sha256": {
+    "config.json": "05978420d096033d0fe7b4905f0178edfcc964f58c67f8776293b81e93d9a7b6",
+    "hub_metadata.json": "bdaf8e54983403d09cacfb617fdedcf8f1de8426c240f93c704c50836ff61874",
+    "dataset_statistics.json": "3f8b7854c8634ea6ccfd6ef6b8f983e3b30b067c2cdaf690b152c0899d5d9282"
+  }
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="so101_amazinghand_static_preview">
+  <!--
+  NOTE: This scene renders the uploaded COMBINED STL AS ONE FIXED MESH.
+  The mesh is not an articulated robot. There are no arm/finger joints or actuators.
+  For real grasping or Fault-Tolerant studies, replace this fixed visual mesh
+  with correctly rigged MJCF links, joints, actuators, inertias and collision geoms.
+  STL coordinates appear to be millimetres. Scale to metres using 0.001.
+  -->
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81"/>
+  <statistic center="0.16 0 0.13" extent="0.65"/>
+  <visual>
+    <headlight diffuse="0.7 0.7 0.7" ambient="0.3 0.3 0.3" specular="0.1 0.1 0.1"/>
+    <global offwidth="640" offheight="480"/>
+  </visual>
+  <asset>
+    <mesh name="combined_visual" file="combined_visual.stl" scale="0.001 0.001 0.001" maxhullvert="64" inertia="convex"/>
+    <material name="robot_gray" rgba="0.80 0.83 0.87 1"/>
+    <material name="platform" rgba="0.34 0.41 0.50 1"/>
+    <material name="work_surface" rgba="0.70 0.72 0.70 1"/>
+    <material name="red_object" rgba="0.88 0.21 0.18 1"/>
+  </asset>
+  <worldbody>
+    <light pos="0.1 -0.2 1.5" dir="0 0 -1" directional="true" diffuse="0.8 0.8 0.8"/>
+    <light pos="0.2 0.8 1.1" dir="0 -1 -1" directional="true" diffuse="0.4 0.4 0.4"/>
+    <geom name="floor" type="plane" size="1.5 1.5 0.1" rgba="0.86 0.88 0.91 1" friction="1 0.005 0.0001"/>
+    <geom name="pedestal" type="box" pos="0 0 0.025" size="0.07 0.07 0.025" material="platform"/>
+    <geom name="table" type="box" pos="0.37 0 0.035" size="0.22 0.19 0.015" material="work_surface"/>
+    <body name="static_combined_stl" pos="0 0 0.0524">
+      <!-- Visual only: disables collision for the non-convex combined STL. -->
+      <geom name="combined_visual_only" type="mesh" mesh="combined_visual" material="robot_gray"
+            contype="0" conaffinity="0" group="2"/>
+    </body>
+    <body name="demo_cube" pos="0.37 0 0.08">
+      <freejoint/>
+      <geom name="cube_collision" type="box" size="0.025 0.025 0.025" mass="0.06"
+            material="red_object" friction="1.0 0.005 0.001"/>
+    </body>
+    <!-- Virtual camera: RGB and depth are different renderer modes on the same view. -->
+    <camera name="overhead_rgbd" mode="fixed" pos="0.18 0 0.78"
+            xyaxes="1 0 0 0 1 0" fovy="52"/>
+    <camera name="front_rgbd" mode="fixed" pos="0.17 -0.65 0.49"
+            xyaxes="1 0 0 0 0.5 0.8660254" fovy="55"/>
+  </worldbody>
+</mujoco>

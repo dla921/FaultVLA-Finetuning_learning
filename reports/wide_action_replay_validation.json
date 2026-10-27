@@ -1,0 +1,13 @@
+{
+  "episode": "train_0000",
+  "success": true,
+  "records": 470,
+  "max_absolute_errors": {
+    "states": 0.0,
+    "actions_7d": 0.0,
+    "state_8d": 0.0,
+    "cup_xyz": 0.0,
+    "joint_positions_rad": 0.0
+  },
+  "source": "fixed recorded 7D actions only; no expert target feedback during replay"
+}
