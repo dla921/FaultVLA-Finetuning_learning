@@ -67,5 +67,13 @@
     "tracked_files": 228,
     "python_compileall_passed": true,
     "install_shell_syntax_passed": true
+  },
+  "requirements_resolver_dry_run_existing_environment_passed": true,
+  "github_release": {
+    "private": true,
+    "published": true,
+    "asset_count": 4,
+    "remote_sha256_verified": true,
+    "url": "https://github.com/dla921/FaultVLA-Finetuning_learning/releases/tag/dataset-wide200-v1"
   }
 }
