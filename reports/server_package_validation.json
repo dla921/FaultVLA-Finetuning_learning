@@ -61,5 +61,11 @@
     "Real robot",
     "LoRA/full-head training",
     "Pixel identity between WSL D3D12 and server EGL"
-  ]
+  ],
+  "github_clone_verified": true,
+  "github_clone_verification": {
+    "tracked_files": 228,
+    "python_compileall_passed": true,
+    "install_shell_syntax_passed": true
+  }
 }
