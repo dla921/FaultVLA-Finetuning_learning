@@ -1,4 +1,4 @@
-"""Frozen Object-Pro visual/language features plus a native joint readout.
+"""Frozen camera-only VLM features, arm readout, hand commands and visual monitor.
 The upstream 7D outputs are discarded, never interpreted as joint commands.
 """
 import numpy as np
@@ -26,18 +26,29 @@ class Extractor:
                     action_head=self.tap,proprio_projector=None,use_film=False,use_minivlm=True)
         return self.tap.feature.clone().squeeze(0)
 
-class JointPolicy:
-    def __init__(self, checkpoint, key, trained):
+CONTRACT = 'rgb-arm5-hand2-visual3-v1'
+
+class SeparatedPolicy:
+    def __init__(self,checkpoint,key,trained):
         payload=torch.load(trained,map_location='cpu',weights_only=True)
-        self.stats=payload['statistics']; self.extract=Extractor(checkpoint,key)
-        self.head=torch.nn.Linear(payload['input_dim'],65)
+        if payload.get('contract')!=CONTRACT:raise ValueError('Incompatible checkpoint: retrain separated policy')
+        self.stats=payload['statistics'];self.extract=Extractor(checkpoint,key)
+        self.head=torch.nn.Linear(payload['input_dim'],38)
         self.head.load_state_dict(payload['head']);self.head.eval()
-    def predict(self,rgb,qpos,task):
-        qpos=np.asarray(qpos,dtype=np.float32)
-        if qpos.shape!=(13,) or not np.isfinite(qpos).all(): raise ValueError('Expected 13 joint positions')
-        s=self.stats['qpos'];state=(qpos-np.array(s['mean']))/np.array(s['std'])
-        x=torch.cat((self.extract(rgb,task),torch.tensor(state,dtype=torch.float32)))
-        with torch.no_grad(): normalized=self.head(x).numpy().reshape(5,13)
-        s=self.stats['action'];result=normalized*np.array(s['std'])+np.array(s['mean'])
-        if not np.isfinite(result).all(): raise ValueError('Nonfinite joint prediction')
-        return result
+        self.arm_limits=np.asarray(payload['arm_limits'])
+
+    def predict(self,rgb,task):
+        from faultvla.hand_controller import HandController
+        from faultvla.stablegrasp import VISUAL_STATES
+        rgb=np.asarray(rgb)
+        if rgb.shape!=(224,224,3) or rgb.dtype!=np.uint8:raise ValueError('Expected uint8 front RGB 224x224')
+        if not task.strip():raise ValueError('Task instruction required')
+        with torch.no_grad():output=self.head(self.extract(rgb,task))
+        commands=output[:35].numpy().reshape(5,7)*np.array(self.stats['std'])+np.array(self.stats['mean'])
+        if not np.isfinite(commands).all() or not torch.isfinite(output).all():raise ValueError('Nonfinite prediction')
+        arm=np.clip(commands[:,:5],self.arm_limits[:,0],self.arm_limits[:,1])
+        hand=np.clip(commands[:,5:],0,1)
+        probabilities=torch.softmax(output[35:],dim=-1).numpy()
+        return dict(arm_targets_rad=arm,hand_commands=hand,hand_targets_rad=HandController.targets(hand),
+                    visual_state=VISUAL_STATES[int(probabilities.argmax())],
+                    visual_probabilities=dict(zip(VISUAL_STATES,probabilities.tolist())))

@@ -1,0 +1,15 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train": 1.4253109693527222,
+      "train_visual_accuracy": 1.0,
+      "validation": 1.4165353775024414,
+      "validation_visual_accuracy": 1.0
+    }
+  ],
+  "smoke": true,
+  "statistics_episodes": 160,
+  "contract": "rgb-arm5-hand2-visual3-v1",
+  "scope": "One train episode and one validation episode, first two frames each; accuracy is not a task or diagnostic performance estimate."
+}

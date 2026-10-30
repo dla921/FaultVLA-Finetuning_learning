@@ -1,7 +1,10 @@
-# Current validation
+# Validation scope
 
-Current dataset: stablegrasp200_validation.json.
-Current GPU training smoke check: stablegrasp_smoke_training.json.
-Current unit tests: unit_tests_stablegrasp.txt.
-Other reports describe the previous wide200/Cartesian package and do not validate
-StableGrasp200. They are retained pending cleanup approval.
+- stablegrasp200_validation.json: full source dataset integrity check.
+- separated_smoke_training.json: current RGB-only separated arm/hand/vision GPU check.
+- unit_tests_separated.txt: current complete unit-test run.
+- stablegrasp_smoke_training.json and unit_tests_stablegrasp.txt: historical 13-axis implementation.
+- Other reports: previous wide200/Cartesian package, not current validation.
+
+No full training, closed-loop success, real hardware or fault-recovery performance
+has been established by a smoke run. Legacy artifacts are preserved pending approval.

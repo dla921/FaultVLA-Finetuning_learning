@@ -30,20 +30,60 @@ python server/restore_data.py
 python server/preflight.py --data-only
 python server/download_checkpoint.py --model object
 python server/preflight.py --model object --inference
-python server/train.py --model object --smoke --epochs 1 --output results/stablegrasp_smoke
-python server/train.py --model object --epochs 20 --output results/stablegrasp_full
+python server/train.py --model object --smoke --epochs 1 --output results/separated_smoke
+python server/train.py --model object --epochs 20 --output results/separated_full
 ```
 
 Each output directory must be new. Use tmux for full feature extraction/training.
-Training extracts frozen single-camera Object-Pro visual/language features,
-concatenates normalized 13-joint position, and learns a new linear `[5,13]` readout.
-The original 7D action decoder and 8D proprioception projector are not trained or
-used as robot commands. This is a frozen-feature experiment, not full VLA/LoRA finetuning.
-Only train/validation are used; the test split is held out.
-The saved `joint_readout.pt` contains weights and train-only normalization.
-`faultvla.stablegrasp_policy.JointPolicy` loads it with the same base checkpoint.
-Its predictions are absolute radians, not deltas; real hardware requires a separate
-controller with joint limits, timing and safety checks. No hardware evaluation was performed.
+Training extracts frozen single-camera Object-Pro visual/language features.
+**Inference input is front RGB + task text only**: no arm/hand qpos, qvel,
+contact forces, simulator object poses or injected-fault IDs are supplied.
+
+The readout has three separate roles:
+- Arm: five absolute joint targets at each of five 20 ms steps, clipped to source actuator limits.
+- Hand: two bounded synergy commands (`finger_closure`, `thumb_closure`) at each step.
+  `HandController` expands them into the eight opposing motor targets. The mapping
+  exactly reproduces the original data, including the different thumb target.
+  It is sensor-free command generation, not force control or measured fault compensation.
+- Visual monitor: RGB-based probabilities for source region, elevated and target region.
+  Simulator cup positions provide offline labels only. These are location estimates,
+  not grasp/contact verification, success certification or motor-fault diagnoses.
+
+Only the new readout is trained; the VLM remains frozen. This is not full-model/LoRA
+finetuning. Train-only normalization and validation selection are retained; test is held out.
+The saved `separated_policy.pt` is loaded by
+`faultvla.stablegrasp_policy.SeparatedPolicy(checkpoint, key, trained)`:
+
+```python
+result = policy.predict(front_rgb_uint8_224x224, task_text)
+# result['arm_targets_rad']: [5,5] absolute radians, 50 Hz
+# result['hand_commands']: [5,2] synergy commands in [0,1]
+# result['hand_targets_rad']: [5,8], from the separate hand controller
+# result['visual_probabilities']: camera-derived location estimates
+```
+
+For a single-frame inference check after training:
+
+```bash
+python server/predict.py --trained results/separated_full/separated_policy.pt \
+  --image data/SO101_StableGrasp200/episodes/episode_000/rgb/000000.png \
+  --task "Pick up the cup and place it on the other table." \
+  --output results/separated_prediction.json
+```
+
+This writes commands to JSON; it does not move a robot.
+
+The arm and hand chunks must execute synchronously at 50 Hz; acquire a fresh RGB
+frame and replan every 100 ms. This is the dataset timing requirement, not a measured
+real-time guarantee. A real controller/simulator must implement and benchmark this loop.
+The package does not yet provide a validated closed-loop runner for this architecture.
+There is no automatic recovery supervisor or reliable fault detector trained from
+these normal-only demonstrations. Add failure/recovery data and temporal visual
+monitoring before claiming fault-tolerant operation.
+
+**Retrain after this change.** Earlier `joint_readout.pt` checkpoints are incompatible
+and are rejected; use a fresh output directory (for example `results/separated_smoke`
+and `results/separated_full`). Existing data and checkpoints are preserved.
 
 ## Validation and source assets
 
@@ -60,7 +100,8 @@ For exact source simulation reproduction, use a separate environment with
 `data/SO101_StableGrasp200/requirements.txt`.
 
 - `reports/stablegrasp200_validation.json`: locally rerun full dataset checks.
-- `reports/stablegrasp_smoke_training.json`: small real-GPU training result.
+- `reports/separated_smoke_training.json`: current camera-only separated GPU smoke result.
+- `reports/stablegrasp_smoke_training.json`: historical 13-axis joint-readout result.
 - `data/SO101_StableGrasp200/README.md`: supplied dataset description and limits.
 - Dataset `provenance/`: original SO-101 and AmazingHand sources and licenses.
 - `VLA-Adapter/`: upstream source snapshot, MIT LICENSE retained.

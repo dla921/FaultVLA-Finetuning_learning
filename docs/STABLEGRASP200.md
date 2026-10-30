@@ -1,12 +1,24 @@
-# StableGrasp200 migration
+# Camera-only separated control
 
-Current workflow: README.md, server/restore_data.py, server/preflight.py and
-server/train.py. Single front RGB plus 13 joint positions -> five 13-joint targets.
-The frozen visual/language model uses one image, without fabricated wrist images
-or an 8D Cartesian state. The new readout is independent of the legacy 7D decoder.
+Current workflow: README.md and server/{restore_data,preflight,train}.py.
+Input: front RGB and task text. Frozen VLM -> trained arm5 / hand2 / visual3 readout.
+Arm labels are the first five original action channels. HandController.encode
+validates and converts the eight hand channels to two independent synergies;
+HandController.targets reconstructs them without inventing measured sensor state.
+No hand/arm actual joint positions are fed into this policy.
 
-The environment in environments/so101_wrist_side and the old scripts/train_limited.py,
-scripts/evaluate_limited.py, scripts/validate_wide_dataset.py and configs/so101_vla.json
-are legacy Cartesian experiments. They must not be used to evaluate this dataset.
-The authoritative new physics assets are supplied inside the dataset Release.
-No new closed-loop rollout or hardware success claim is made.
+Image t supervises five consecutive commands [t,t+100ms) at 50 Hz. Visual location
+labels at t are generated offline from cup_xyz, with a 15mm elevation threshold
+above both initial/final rest heights. This uses ground truth only for supervision;
+policy prediction accepts no simulator state. The monitor's location probabilities
+are not evidence of contact force, task success or a specific failed actuator.
+
+Inference: SeparatedPolicy.predict(rgb,task) returns synchronized arm and hand
+chunks plus visual probabilities. It does not select recovery actions or run a
+robot. The downstream executor must implement 50 Hz command execution/10 Hz
+camera replanning. A temporal failure monitor and recovery demonstrations remain
+future work. Normal-only data cannot validate fault diagnosis or fault recovery.
+
+Old joint_readout.pt files must be retrained as separated_policy.pt. Previous
+Cartesian adapters, wrist-camera environment and train_limited/evaluate_limited
+scripts remain legacy references and are not the current inference path.

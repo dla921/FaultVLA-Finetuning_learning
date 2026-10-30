@@ -1,0 +1,31 @@
+{
+  "episodes": 200,
+  "max_hand_reconstruction_error_rad": 1.3877787807814457e-16,
+  "input": "front RGB + task only",
+  "splits": {
+    "train": {
+      "episodes": 160,
+      "visual_label_counts": [
+        29280,
+        14240,
+        16960
+      ]
+    },
+    "validation": {
+      "episodes": 20,
+      "visual_label_counts": [
+        3660,
+        1780,
+        2120
+      ]
+    },
+    "test": {
+      "episodes": 20,
+      "visual_label_counts": [
+        3660,
+        1780,
+        2120
+      ]
+    }
+  }
+}
