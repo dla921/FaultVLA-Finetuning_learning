@@ -61,7 +61,10 @@ class BridgePolicy:
         from faultvla.stablegrasp import VISUAL_STATES
         rgb=np.asarray(rgb)
         if rgb.shape!=(224,224,3) or rgb.dtype!=np.uint8 or not task.strip():raise ValueError('RGB/task required')
-        with torch.no_grad():action,visual=self.head(self.extract(rgb,task))
+        with torch.no_grad():
+            hidden=self.extract(rgb,task)
+            self.last_camera_feature=hidden[:,-1].float().mean(1).detach().cpu().squeeze(0)
+            action,visual=self.head(hidden)
         commands=action[0].cpu().numpy()*np.array(self.stats['std'])+np.array(self.stats['mean'])
         probabilities=torch.softmax(visual[0],dim=-1).cpu().numpy()
         if not np.isfinite(commands).all() or not np.isfinite(probabilities).all():raise ValueError('Nonfinite prediction')

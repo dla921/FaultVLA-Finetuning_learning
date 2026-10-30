@@ -134,3 +134,10 @@ Attention, follow [docs/POLICY_TRAINING.md](docs/POLICY_TRAINING.md). The new
 scripts/train_bridge.py path keeps the VLM frozen, does not use LoRA or joint
 sensor inputs, and preserves separate hand control. Existing baseline checkpoints
 remain supported. These are adapted experiments, not paper-exact reproduction.
+
+## Optional visual hand judge
+
+[docs/VISUAL_HAND_JUDGE.md](docs/VISUAL_HAND_JUDGE.md) explains a separately
+trained camera-based close/release decision supplement. It is opt-in via
+--hand-judge, uses no simulator ground-truth inputs, and does not modify arm
+weights. It is experimental and does not guarantee grasp readiness or task success.

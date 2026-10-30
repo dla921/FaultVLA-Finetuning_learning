@@ -43,7 +43,9 @@ class SeparatedPolicy:
         rgb=np.asarray(rgb)
         if rgb.shape!=(224,224,3) or rgb.dtype!=np.uint8:raise ValueError('Expected uint8 front RGB 224x224')
         if not task.strip():raise ValueError('Task instruction required')
-        with torch.no_grad():output=self.head(self.extract(rgb,task))
+        with torch.no_grad():
+            feature=self.extract(rgb,task);self.last_camera_feature=feature.detach().cpu()
+            output=self.head(feature)
         commands=output[:35].numpy().reshape(5,7)*np.array(self.stats['std'])+np.array(self.stats['mean'])
         if not np.isfinite(commands).all() or not torch.isfinite(output).all():raise ValueError('Nonfinite prediction')
         arm=np.clip(commands[:,:5],self.arm_limits[:,0],self.arm_limits[:,1])

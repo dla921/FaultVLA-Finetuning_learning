@@ -16,7 +16,12 @@ def main():
  p.add_argument('--backend',choices=['egl','glfw','osmesa'],default='egl')
  p.add_argument('--arm-max-speed',type=float,help='Optional arm command rate limit, rad/s')
  p.add_argument('--hand-max-speed',type=float,help='Optional hand command rate limit, rad/s')
+ p.add_argument('--hand-judge',type=Path,help='Optional separately trained camera hand-stage classifier')
+ p.add_argument('--judge-threshold',type=float,default=.8)
+ p.add_argument('--judge-confirmations',type=int,default=3)
+ p.add_argument('--judge-hand-speed',type=float,default=1.,help='Takeover hand command rate, rad/s')
  p.add_argument('--video',action='store_true');p.add_argument('--viewer',action='store_true');a=p.parse_args()
+ if a.hand_judge and a.mode!='policy':p.error('--hand-judge requires policy mode')
  if a.mode=='policy' and not a.trained:p.error('--trained is required for policy mode')
  if a.steps is not None and a.steps<1:p.error('--steps must be positive')
  import math
@@ -60,6 +65,11 @@ def main():
   payload=torch.load(a.trained,map_location='cpu',weights_only=True)
   c=json.loads((R/'configs/checkpoints.json').read_text())[payload['base_model']]
   policy=load_policy(R/c['checkpoint'],c['unnorm_key'],a.trained)
+ judge=supervisor=None;hand_events=[];hand_decision=None
+ if a.hand_judge:
+  from faultvla.visual_hand import VisualHandJudge,HandSupervisor
+  judge=VisualHandJudge(a.hand_judge,payload['base_model'])
+  supervisor=HandSupervisor(a.judge_threshold,a.judge_confirmations,a.judge_hand_speed)
  viewer=writer=renderer=None
  def rgb():
   rd.qpos[:]=d.qpos;mujoco.mj_kinematics(rm,rd);mujoco.mj_comPos(rm,rd);mujoco.mj_camlight(rm,rd)
@@ -84,7 +94,15 @@ def main():
      if writer:writer.append_data(frame)
      if policy:
       prediction=policy.predict(frame,meta['instruction'])
-      chunk=np.concatenate((prediction['arm_targets_rad'],HandController.targets(prediction['hand_commands'])),axis=1)
+      hand_targets=HandController.targets(prediction['hand_commands'])
+      if judge:
+       probabilities=judge.predict(policy.last_camera_feature)
+       hand_decision=supervisor.update(probabilities,prediction['hand_commands'],d.ctrl[5:].copy())
+       hand_targets=hand_decision['targets']
+       if hand_decision['event']:
+        hand_events.append(dict(time=float(d.time),event=hand_decision['event']))
+        print('Visual hand event',hand_events[-1],flush=True)
+      chunk=np.concatenate((prediction['arm_targets_rad'],hand_targets),axis=1)
     action=chunk[k%5] if policy else reference[k]
     if not np.isfinite(action).all():raise ValueError('Nonfinite command')
     requested=np.clip(action,m.actuator_ctrlrange[:,0],m.actuator_ctrlrange[:,1])
@@ -99,6 +117,9 @@ def main():
     record=dict(step=k,time=float(d.time),cup_xyz=cup.tolist(),command=d.ctrl.tolist(),requested_command=requested.tolist())
     telemetry=observe(m,d);diagnostics.update(d.time,telemetry);record['diagnostics']=telemetry
     if policy and k%5==0:record['visual_probabilities']=prediction['visual_probabilities']
+    if judge and k%5==0:
+     record['visual_hand_decision']={key:value for key,value in hand_decision.items() if key!='targets'}
+     record['vla_hand_commands']=prediction['hand_commands'].tolist()
     log.write(json.dumps(record)+'\n')
     if viewer:
      if not viewer.is_running():raise RuntimeError('Viewer closed before completion')
@@ -116,6 +137,10 @@ def main():
    steps=steps,complete_episode=complete,task_success=success if complete else None,
    command_rate_limits_rad_s=dict(arm=a.arm_max_speed,hand=a.hand_max_speed),
    rate_limited_steps=limited_steps,max_command_delta_rad=max_delta.tolist(),
+   visual_hand_supervisor=dict(enabled=bool(judge),checkpoint=str(a.hand_judge) if judge else None,
+    final_state=supervisor.state if supervisor else None,events=hand_events,
+    threshold=a.judge_threshold if judge else None,confirmations=a.judge_confirmations if judge else None,
+    takeover_hand_rate_rad_s=a.judge_hand_speed if judge else None),
    grasp_diagnostics=diagnostics.result(),
    max_lift_m=max_lift,final_cup_xyz=final.tolist(),target_reference_xyz=target.tolist(),
    upright_cos=upright,contacts=contacts,seconds=time.monotonic()-started,

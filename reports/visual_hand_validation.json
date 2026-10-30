@@ -1,0 +1,157 @@
+{
+  "scope": "36 unit tests; 4 train/4 validation-frame GPU classifier smoke; 10-step local smoke-arm MuJoCo connection. No full classifier training or remote baseline task success measured.",
+  "camera_only_input": true,
+  "arm_checkpoint_unchanged": true,
+  "smoke_training": {
+    "history": [
+      {
+        "epoch": 1,
+        "train": 1.057225227355957,
+        "train_accuracy": 0.75,
+        "validation": 1.09626305103302,
+        "validation_accuracy": 0.75
+      },
+      {
+        "epoch": 2,
+        "train": 0.8918939828872681,
+        "train_accuracy": 1.0,
+        "validation": 0.9383991956710815,
+        "validation_accuracy": 0.75
+      }
+    ],
+    "best_epoch": 2,
+    "best_confusion": {
+      "train": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "validation": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "last_confusion": {
+      "train": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "validation": [
+        [
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "classes": [
+      "approach",
+      "ready_to_close",
+      "carry",
+      "release"
+    ],
+    "counts": {
+      "train": 4,
+      "validation": 4
+    },
+    "smoke": true
+  },
+  "connection": {
+    "steps": 10,
+    "task_success": null,
+    "visual_hand_supervisor": {
+      "enabled": true,
+      "checkpoint": "results/hand_judge_smoke_02/hand_judge.pt",
+      "final_state": "approach",
+      "events": [],
+      "threshold": 0.8,
+      "confirmations": 3,
+      "takeover_hand_rate_rad_s": 1.0
+    }
+  },
+  "notes": "Unit tests validate consecutive-frame gating, open-VLA close takeover, command rate bounds and release logic. The two-camera-update integration check is too short to trigger the default three-frame close decision."
+}
