@@ -18,3 +18,5 @@ has been established by a smoke run. Legacy artifacts are preserved pending appr
 - grasp_diagnostics_validation.json and unit_tests_grasp_diagnostics.txt: read-only actual joint/palm/cup telemetry and same-episode comparison; no control changes.
 
 - visual_hand_validation.json and unit_tests_visual_hand.txt: optional camera-stage hand supervisor smoke/logic checks; not a full-trained grasp-success result.
+
+- rollout_start_validation.json and unit_tests_rollout_start.txt: expert-prefix diagnostic initialization, source-index continuity and explicit exclusion from full-task success.

@@ -116,3 +116,53 @@ approach geometry, hand targets there, contact steps and actual tracking error.
 Same-time differences can result from task timing differences; do not treat the
 original trajectory as the only permissible policy trajectory. The policy run can
 exit 2 for task failure while still writing all diagnostic outputs.
+
+## Diagnostic start from an expert-aligned state
+
+```bash
+PYOPENGL_PLATFORM=egl python scripts/evaluate_separated.py --mode policy \
+ --trained results/bridge_normal_01/bridge_policy.pt \
+ --hand-judge results/hand_judge_01/hand_judge.pt \
+ --episode episode_081 --start-phase 02_preclose_settle --video \
+ --output results/bridge_normal_01/mujoco_aligned_start_01
+```
+
+This is not a full-task evaluation. --start-phase selects the first recorded
+50Hz index in that phase. --start-index selects an explicit index instead; the
+options are mutually exclusive. The default with neither option is unchanged.
+The handoff phase 02_preclose_settle follows the original alignment movement and
+precedes closure. Its index is read from this episode, not hardcoded.
+
+To preserve passive/object velocities and contact dynamics, initialization replays
+the original expert controls up to (but excluding) the selected index in the original
+physics model. It does not teleport qpos alone. This reconstructs the expert state
+in the currently installed MuJoCo version, not guaranteed bit-identical to the
+3.3.7 recording. The prefix is excluded from the GIF, policy trace and diagnostic
+rollout metrics. No policy or hand judge is running during the expert prefix.
+
+At handoff, policy and hand supervisor start fresh. All subsequent policy-mode
+controls come from current RGB, task text, the learned arm/hand outputs and optional
+visual hand supervisor; source phase/time/pose is never fed to them. The first
+camera-frame judge probabilities are reported as
+visual_hand_supervisor.initial_probabilities as a class-name/probability mapping.
+Observe whether initial readiness is high, whether it persists for three frames,
+and whether close_command_triggered occurs. This does not force closure or hold
+the arm fixed while waiting. High first-frame readiness that disappears can reflect
+movement away from alignment rather than an unavailable close-command path.
+
+Without --steps, run the remaining original horizon; --steps caps post-handoff
+controls only. trace.step is local, trace.source_index is the reference timeline
+index for logging only, trace.time is physics time including the prefix, and
+elapsed_after_handoff_s is local elapsed simulation time. Events use physics time.
+summary.initialization records the selected index/phase, method, prefix length and
+actual initial diagnostics. complete_episode is false and task_success is null for
+any explicit diagnostic start. completed_remaining_horizon and
+diagnostic_remaining_task_success separately describe the remainder. Never count
+this as a normal end-to-end test success. A completed remainder failure exits 2;
+short connection checks exit 0 and leave remaining success null.
+
+For a replay comparison add the identical --start-phase to mode=replay and omit
+--trained/--hand-judge. The comparison tool rejects mismatched start indices.
+A model failure here does not automatically imply the judge is wrong: inspect the
+first-frame probabilities and subsequent geometry/commands together. No new
+training, LoRA, threshold changes or independent arm-hold controller is introduced.

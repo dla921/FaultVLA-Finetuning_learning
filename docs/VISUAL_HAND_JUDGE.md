@@ -77,3 +77,7 @@ Interpretation:
 
 Without --hand-judge the original evaluation path is unchanged. Existing weights
 and prior runs are preserved. No LoRA, recovery supervisor or force feedback was added.
+
+For readiness diagnosis from an expert-aligned starting pose, see the --start-phase
+02_preclose_settle option in [MUJOCO_EVALUATION.md](MUJOCO_EVALUATION.md). This
+uses an expert prefix solely for initialization and is not a full-task evaluation.

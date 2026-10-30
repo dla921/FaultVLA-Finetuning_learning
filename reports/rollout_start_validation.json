@@ -1,0 +1,18 @@
+{
+  "scope": "38 unit tests; short replay and local smoke-model/judge handoff; full source-action remaining replay. Remote full-trained model not evaluated.",
+  "source_start_index": 650,
+  "source_start_phase": "02_preclose_settle",
+  "expert_prefix_steps": 650,
+  "replay_remaining_steps": 1240,
+  "replay_remaining_success": true,
+  "full_task_success": null,
+  "complete_episode": false,
+  "policy_connection_steps": 10,
+  "first_judge_probabilities": [
+    0.2141593098640442,
+    0.26492664217948914,
+    0.27507907152175903,
+    0.24583494663238525
+  ],
+  "note": "Expert prefix initializes physics only; no expert controls after handoff in policy mode. Intermediate starts are diagnostic and never normal task successes."
+}

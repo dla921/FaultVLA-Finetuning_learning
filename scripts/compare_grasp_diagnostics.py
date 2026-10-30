@@ -22,6 +22,9 @@ def describe(rows):
 def compare(policy_summary,policy_rows,replay_summary,replay_rows):
     if policy_summary['episode']!=replay_summary['episode']:raise ValueError('Use the same initial episode')
     if policy_summary['mode']!='policy' or replay_summary['mode']!='replay':raise ValueError('Expected policy and replay runs')
+    pi=policy_summary.get('initialization',{}).get('source_start_index',0)
+    ri=replay_summary.get('initialization',{}).get('source_start_index',0)
+    if pi!=ri:raise ValueError('Compare runs with the same diagnostic start index')
     lookup={row['step']:row for row in replay_rows}
     differences=[]
     for row in policy_rows:
