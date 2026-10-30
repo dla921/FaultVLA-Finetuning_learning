@@ -80,3 +80,39 @@ command delta. Diagnostic rate tuning on episode_081 makes it a development
 case; reserve other episodes for final held-out reporting. In fault-tolerance
 comparisons apply the same limiter settings to both algorithm-on and algorithm-off
 conditions. Do not call this command filter a fault-tolerant algorithm.
+
+## Evaluation-only grasp geometry diagnosis
+
+Current runs add a diagnostics object to each post-step trace row and
+summary.grasp_diagnostics. It records actual actuator joint positions/velocities,
+command tracking error (target minus actual position), palm_target reference-site
+world position, cup-minus-palm in world/hand coordinates, cup orientation in the
+hand frame and named cup contacts. The hand frame is r_wrist_interface; positions
+are metres, angles radians. These are simulator ground-truth readings solely for
+post-run diagnosis, never inputs to the RGB policy, limiter or hand mapping.
+This update changes no hand-control logic or learned weights.
+
+The palm_target site is a model reference, not the skin surface. A small distance
+alone is not proof of alignment: direction, orientation, finger placement and
+contacts must also be inspected. Tracking error is not automatically a motor fault.
+
+Run both modes again into NEW output folders; old traces lack these fields:
+
+```bash
+PYOPENGL_PLATFORM=egl python scripts/evaluate_separated.py --mode policy \
+ --trained results/bridge_normal_01/bridge_policy.pt --episode episode_081 --video \
+ --output results/bridge_normal_01/mujoco_alignment_01
+PYOPENGL_PLATFORM=egl python scripts/evaluate_separated.py --mode replay \
+ --episode episode_081 --video --output results/replay_alignment_01
+python scripts/compare_grasp_diagnostics.py \
+ --policy-run results/bridge_normal_01/mujoco_alignment_01 \
+ --replay-run results/replay_alignment_01 \
+ --output results/bridge_normal_01/alignment_comparison_01.json
+```
+
+These commands preserve the last unfiltered comparison (no rate-limit options).
+The replay must match the policy episode. The compact comparison reports nearest
+approach geometry, hand targets there, contact steps and actual tracking error.
+Same-time differences can result from task timing differences; do not treat the
+original trajectory as the only permissible policy trajectory. The policy run can
+exit 2 for task failure while still writing all diagnostic outputs.

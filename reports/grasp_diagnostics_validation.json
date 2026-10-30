@@ -1,0 +1,11 @@
+{
+  "scope": "32 unit tests and full source-action replay; supplied policy commands reconstructed locally for diagnosis only, not a new policy evaluation",
+  "diagnostics_read_only": true,
+  "policy_inputs_unchanged": true,
+  "hand_control_unchanged": true,
+  "source_replay_task_success": true,
+  "source_replay_episode": "episode_081",
+  "source_replay_closest_distance_m": 0.03527626865682563,
+  "policy_reconstruction_max_cup_error_m": 0.0,
+  "note": "Diagnostic geometry is not supplied to inference. Proximity alone does not certify alignment. No independent visual hand controller was added."
+}

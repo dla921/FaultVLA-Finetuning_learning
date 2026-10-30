@@ -48,6 +48,8 @@ def main():
  mujoco.mj_forward(m,d)
  nsub=round(.02/m.opt.timestep)
  if not np.isclose(nsub*m.opt.timestep,.02):raise ValueError('Physics timestep mismatch')
+ from faultvla.grasp_diagnostics import observe,DiagnosticSummary
+ diagnostics=DiagnosticSummary()
  from faultvla.command_limiter import CommandLimiter
  limiter=CommandLimiter(d.ctrl,m.actuator_ctrlrange,arm_speed=a.arm_max_speed,hand_speed=a.hand_max_speed)
  previous=limiter.previous.copy();max_delta=np.zeros(13);limited_steps=0
@@ -95,6 +97,7 @@ def main():
     mujoco.mj_forward(m,d)
     cup=d.body('demo_cube').xpos.copy();max_lift=max(max_lift,float(cup[2]-source[2]))
     record=dict(step=k,time=float(d.time),cup_xyz=cup.tolist(),command=d.ctrl.tolist(),requested_command=requested.tolist())
+    telemetry=observe(m,d);diagnostics.update(d.time,telemetry);record['diagnostics']=telemetry
     if policy and k%5==0:record['visual_probabilities']=prediction['visual_probabilities']
     log.write(json.dumps(record)+'\n')
     if viewer:
@@ -113,6 +116,7 @@ def main():
    steps=steps,complete_episode=complete,task_success=success if complete else None,
    command_rate_limits_rad_s=dict(arm=a.arm_max_speed,hand=a.hand_max_speed),
    rate_limited_steps=limited_steps,max_command_delta_rad=max_delta.tolist(),
+   grasp_diagnostics=diagnostics.result(),
    max_lift_m=max_lift,final_cup_xyz=final.tolist(),target_reference_xyz=target.tolist(),
    upright_cos=upright,contacts=contacts,seconds=time.monotonic()-started,
    mujoco_version=mujoco.__version__,source_mujoco_version='3.3.7',render_backend=a.backend,

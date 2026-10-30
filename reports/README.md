@@ -14,3 +14,5 @@ has been established by a smoke run. Legacy artifacts are preserved pending appr
 - command_limiter_validation.json and unit_tests_command_limiter.txt: optional command-rate filter bounds and short simulation checks, not task success.
 
 - bridge_policy_validation.json and unit_tests_bridge_policy.txt: actual Pro Policy GPU weight updates, old/new offline diagnostic and short MuJoCo reload checks. No full model task-success claim.
+
+- grasp_diagnostics_validation.json and unit_tests_grasp_diagnostics.txt: read-only actual joint/palm/cup telemetry and same-episode comparison; no control changes.
