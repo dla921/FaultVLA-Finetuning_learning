@@ -106,8 +106,10 @@ For exact source simulation reproduction, use a separate environment with
 - Dataset `provenance/`: original SO-101 and AmazingHand sources and licenses.
 - `VLA-Adapter/`: upstream source snapshot, MIT LICENSE retained.
 
-The earlier wide200 dataset, release archives and historical reports are preserved
-pending explicit cleanup approval. They are not used by the current training path. Older Cartesian adapter/evaluation code remains as legacy
+The previous wide200 dataset, four local tar.gz archives and old dataset GitHub
+Release have been deleted. Only StableGrasp200 and its four ZIP archives remain
+in the project data/archive directories. Historical code, reports and training
+results are preserved; they are not used by the current training path. Older Cartesian adapter/evaluation code remains as legacy
 reference and is **not compatible** with this new joint readout. Use `server/train.py`
 for the current dataset. Full 200-episode training, closed-loop simulated task
 success, fault recovery and real-robot performance have not been measured.

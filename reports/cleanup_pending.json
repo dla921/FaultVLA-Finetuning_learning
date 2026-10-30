@@ -1,14 +1,9 @@
 {
-  "status": "NOT DELETED - awaiting explicit approval",
+  "status": "Non-data artifacts preserved; this request authorized dataset cleanup only",
   "repository": "dla921/FaultVLA-Finetuning_learning",
   "paths": [
-    "data/cartesian_demos_v2_wide200",
     "results/object_smoke",
     "results/object_smoke_egl",
-    "dist/wide200-01-of-04.tar.gz",
-    "dist/wide200-02-of-04.tar.gz",
-    "dist/wide200-03-of-04.tar.gz",
-    "dist/wide200-04-of-04.tar.gz",
     "reports/object_smoke_egl.json",
     "reports/object_smoke_training.json",
     "reports/provenance.json",
@@ -18,5 +13,5 @@
     "reports/wide_action_replay_validation.json",
     "reports/wide_action_space_audit.json"
   ],
-  "notes": "Only paths inside this project. Original Desktop ZIPs, base checkpoints and sibling FaultVLA folders are excluded. Historical GitHub release dataset-wide200-v1 is also retained."
+  "notes": "Old wide200 data and archives were deleted with explicit user authorization. Model weights, results and historical reports remain. Original Desktop ZIPs and sibling FaultVLA folders are untouched."
 }

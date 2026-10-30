@@ -1,0 +1,21 @@
+{
+  "status": "completed",
+  "removed_local": [
+    "data/cartesian_demos_v2_wide200",
+    "dist/wide200-01-of-04.tar.gz",
+    "dist/wide200-02-of-04.tar.gz",
+    "dist/wide200-03-of-04.tar.gz",
+    "dist/wide200-04-of-04.tar.gz"
+  ],
+  "removed_github_release": "dataset-wide200-v1",
+  "retained_dataset": "data/SO101_StableGrasp200",
+  "episodes": 200,
+  "retained_archives": [
+    "SO101_StableGrasp200_Part1.zip",
+    "SO101_StableGrasp200_Part2.zip",
+    "SO101_StableGrasp200_Part3.zip",
+    "SO101_StableGrasp200_Part4.zip"
+  ],
+  "zip_sha256_verified": true,
+  "scope": "FaultVLA-Finetuning_learning dataset and dataset archives only"
+}
