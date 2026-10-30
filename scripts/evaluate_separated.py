@@ -14,9 +14,14 @@ def main():
  p.add_argument('--trained',type=Path);p.add_argument('--episode',help='Episode ID; defaults to the first test episode')
  p.add_argument('--output',type=Path,required=True);p.add_argument('--steps',type=int)
  p.add_argument('--backend',choices=['egl','glfw','osmesa'],default='egl')
+ p.add_argument('--arm-max-speed',type=float,help='Optional arm command rate limit, rad/s')
+ p.add_argument('--hand-max-speed',type=float,help='Optional hand command rate limit, rad/s')
  p.add_argument('--video',action='store_true');p.add_argument('--viewer',action='store_true');a=p.parse_args()
  if a.mode=='policy' and not a.trained:p.error('--trained is required for policy mode')
  if a.steps is not None and a.steps<1:p.error('--steps must be positive')
+ import math
+ for rate in [a.arm_max_speed,a.hand_max_speed]:
+  if rate is not None and (not math.isfinite(rate) or rate<=0):p.error('Command rate limits must be positive finite rad/s')
  os.environ['MUJOCO_GL']=a.backend
  import numpy as np,mujoco
  from PIL import Image
@@ -43,6 +48,9 @@ def main():
  mujoco.mj_forward(m,d)
  nsub=round(.02/m.opt.timestep)
  if not np.isclose(nsub*m.opt.timestep,.02):raise ValueError('Physics timestep mismatch')
+ from faultvla.command_limiter import CommandLimiter
+ limiter=CommandLimiter(d.ctrl,m.actuator_ctrlrange,arm_speed=a.arm_max_speed,hand_speed=a.hand_max_speed)
+ previous=limiter.previous.copy();max_delta=np.zeros(13);limited_steps=0
  policy=None
  if a.mode=='policy':
   import torch
@@ -77,12 +85,16 @@ def main():
       chunk=np.concatenate((prediction['arm_targets_rad'],HandController.targets(prediction['hand_commands'])),axis=1)
     action=chunk[k%5] if policy else reference[k]
     if not np.isfinite(action).all():raise ValueError('Nonfinite command')
-    d.ctrl[:]=np.clip(action,m.actuator_ctrlrange[:,0],m.actuator_ctrlrange[:,1])
+    requested=np.clip(action,m.actuator_ctrlrange[:,0],m.actuator_ctrlrange[:,1])
+    applied=limiter.apply(requested)
+    limited_steps+=int(np.any(np.abs(applied-requested)>1e-12))
+    max_delta=np.maximum(max_delta,np.abs(applied-previous));previous=applied.copy()
+    d.ctrl[:]=applied
     mujoco.mj_step(m,d,nstep=nsub)
     if not np.isfinite(d.qpos).all() or any(w.number for w in d.warning):raise RuntimeError('Invalid physics state/warning')
     mujoco.mj_forward(m,d)
     cup=d.body('demo_cube').xpos.copy();max_lift=max(max_lift,float(cup[2]-source[2]))
-    record=dict(step=k,time=float(d.time),cup_xyz=cup.tolist(),command=d.ctrl.tolist())
+    record=dict(step=k,time=float(d.time),cup_xyz=cup.tolist(),command=d.ctrl.tolist(),requested_command=requested.tolist())
     if policy and k%5==0:record['visual_probabilities']=prediction['visual_probabilities']
     log.write(json.dumps(record)+'\n')
     if viewer:
@@ -99,6 +111,8 @@ def main():
                and 'table2' in contacts and not any(n and n.startswith('contact_') for n in contacts))
   summary=dict(mode=a.mode,episode=a.episode,split=split,trained=str(a.trained) if a.trained else None,
    steps=steps,complete_episode=complete,task_success=success if complete else None,
+   command_rate_limits_rad_s=dict(arm=a.arm_max_speed,hand=a.hand_max_speed),
+   rate_limited_steps=limited_steps,max_command_delta_rad=max_delta.tolist(),
    max_lift_m=max_lift,final_cup_xyz=final.tolist(),target_reference_xyz=target.tolist(),
    upright_cos=upright,contacts=contacts,seconds=time.monotonic()-started,
    mujoco_version=mujoco.__version__,source_mujoco_version='3.3.7',render_backend=a.backend,

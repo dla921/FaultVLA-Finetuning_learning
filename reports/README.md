@@ -10,3 +10,5 @@ No full training, closed-loop success, real hardware or fault-recovery performan
 has been established by a smoke run. Legacy artifacts are preserved pending approval.
 
 - mujoco_evaluation_validation.json: original-action physics replay and short RGB-policy connection only; not a trained baseline task-success result.
+
+- command_limiter_validation.json and unit_tests_command_limiter.txt: optional command-rate filter bounds and short simulation checks, not task success.

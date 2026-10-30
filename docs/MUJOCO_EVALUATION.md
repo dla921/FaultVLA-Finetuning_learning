@@ -47,3 +47,36 @@ splits.test to obtain the 20-episode test success rate. One episode is not a suc
 For a visible window on a graphical machine use --backend glfw --viewer. On a
 headless SSH server keep the default EGL and inspect the saved GIF/PNGs.
 The local smoke checkpoint is not the user's remotely trained baseline.
+
+## Optional command-rate diagnostic
+
+The default has no rate limit and preserves the previous control behavior. To
+compare against the existing unbounded episode_081 run, use the same checkpoint:
+
+```bash
+PYOPENGL_PLATFORM=egl python scripts/evaluate_separated.py --mode policy \
+  --trained results/normal_baseline_01/separated_policy.pt --episode episode_081 \
+  --arm-max-speed 1 --hand-max-speed 2 --video \
+  --output results/normal_baseline_01/mujoco_rate_limited_01
+```
+
+These starting diagnostic values limit arm command changes to .02 rad per 20ms
+and hand changes to .04 rad per 20ms. They are not tuned or validated physical
+velocity limits: actual joint speeds can differ. The limiter remembers only the
+previous command, initialized from the existing initial simulation state. It
+uses no runtime measured joint state, object state, expert action or fault ID.
+It runs for every 20ms command, including within chunks and at chunk boundaries.
+Joint target bounds still apply. Either group can be limited independently.
+
+trace.jsonl retains command as the applied command and adds requested_command
+for the pre-rate-limit target (after joint clipping). summary.json records rates,
+rate_limited_steps and per-actuator max_command_delta_rad, including the first
+command relative to the initial hold command. With limits omitted, the summary
+rates are null and behavior is unchanged.
+
+Rate limiting may reduce violent command changes without fixing wrong actions.
+Compare videos, lift and task_success; do not infer successful grasp from a lower
+command delta. Diagnostic rate tuning on episode_081 makes it a development
+case; reserve other episodes for final held-out reporting. In fault-tolerance
+comparisons apply the same limiter settings to both algorithm-on and algorithm-off
+conditions. Do not call this command filter a fault-tolerant algorithm.
