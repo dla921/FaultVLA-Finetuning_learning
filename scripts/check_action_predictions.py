@@ -19,7 +19,8 @@ def main():
  policy=load_policy(R/c['checkpoint'],c['unnorm_key'],a.trained)
  errors=[];raw_errors=[];hand_errors=[];visual_correct=0;saturated=0;per_episode={}
  with (a.output/'predictions.jsonl').open('w') as log:
-  for sample in separated_samples(R/'data/SO101_StableGrasp200',a.split,a.max_episodes,a.samples_per_episode,evenly=True):
+  for sample in separated_samples(R/'data/SO101_StableGrasp200',a.split,a.max_episodes,a.samples_per_episode,evenly=True,command_statistics=payload['statistics'] if hasattr(policy,'set_offline_context') else None):
+   if hasattr(policy,'set_offline_context'):policy.set_offline_context(sample['command_context'])
    result=policy.predict(sample['rgb'],sample['task'])
    applied=np.concatenate((result['arm_targets_rad'],result['hand_commands']),axis=1)
    raw=result['raw_commands'];target=sample['action'];error=applied-target
@@ -39,6 +40,6 @@ def main():
    hand_motor_mae_rad=hand.mean((0,1)).tolist(),visual_accuracy=visual_correct/len(errors),
    frames_with_clipped_predictions=saturated,
    episode_mae={key:np.stack(value).mean((0,1)).tolist() for key,value in per_episode.items()},
-   note='Offline recorded-image errors only; no command-rate filter. Does not establish closed-loop success or a unique failure cause.')
+   note='For context policies source past commands are teacher-forced; runtime uses own issued commands. Offline recorded-image errors only; no command-rate filter. Does not establish closed-loop success or a unique failure cause.')
  (a.output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()

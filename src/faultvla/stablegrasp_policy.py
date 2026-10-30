@@ -61,4 +61,6 @@ def load_policy(checkpoint,key,trained):
     if payload.get('contract')==CONTRACT:return SeparatedPolicy(checkpoint,key,trained)
     from faultvla.bridge_policy import BRIDGE_CONTRACT,BridgePolicy
     if payload.get('contract')==BRIDGE_CONTRACT:return BridgePolicy(checkpoint,key,trained)
+    from faultvla.coordinated_policy import CONTRACT as CONTEXT_CONTRACT,CoordinatedPolicy
+    if payload.get('contract')==CONTEXT_CONTRACT:return CoordinatedPolicy(checkpoint,key,trained)
     raise ValueError('Unknown policy contract')

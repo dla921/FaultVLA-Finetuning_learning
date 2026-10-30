@@ -61,7 +61,7 @@ def visual_labels(cup_xyz):
     return labels
 
 
-def separated_samples(root,split,max_episodes=None,max_samples=None,stride=1,evenly=False,shuffle_seed=None):
+def separated_samples(root,split,max_episodes=None,max_samples=None,stride=1,evenly=False,shuffle_seed=None,command_statistics=None):
     """Camera-only inputs; arm labels and hand synergies remain synchronized."""
     from faultvla.hand_controller import HandController
     root=Path(root)
@@ -76,6 +76,10 @@ def separated_samples(root,split,max_episodes=None,max_samples=None,stride=1,eve
         with np.load(ep/'data.npz') as z:
             labels=visual_labels(z['cup_xyz'])
             all_actions=z['action']
+            contexts=None
+            if command_statistics is not None:
+                from faultvla.command_context import contexts_from_actions
+                contexts=contexts_from_actions(all_actions,command_statistics)
             indices=z['rgb_state_index'][::stride]
             if evenly and max_samples is not None and len(indices)>max_samples:
                 indices=indices[np.linspace(0,len(indices)-1,max_samples,dtype=int)]
@@ -87,8 +91,10 @@ def separated_samples(root,split,max_episodes=None,max_samples=None,stride=1,eve
                 hand=HandController.encode(action[:,5:])
                 with Image.open(ep/'rgb'/f'{index:06d}.png') as im:rgb=np.array(im.convert('RGB'))
                 if rgb.shape!=(224,224,3):raise ValueError('RGB shape')
-                yield dict(episode=episode,index=index,rgb=rgb,task=meta['instruction'],
+                sample=dict(episode=episode,index=index,rgb=rgb,task=meta['instruction'],
                            action=np.concatenate((action[:,:5],hand),axis=1),visual_label=int(labels[index]))
+                if contexts is not None:sample['command_context']=contexts[index].copy()
+                yield sample
 
 
 def separated_statistics(root):

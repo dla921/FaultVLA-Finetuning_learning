@@ -1,0 +1,39 @@
+{
+  "scope": "42 unit tests; GPU warm-started Policy smoke; offline diagnostic and two 10-step MuJoCo cases. No full coordinated-policy task performance measured.",
+  "training": {
+    "history": [
+      {
+        "epoch": 1,
+        "train": 1.170402745405833,
+        "validation": 0.8750442465146383
+      }
+    ],
+    "parameter_changes": {
+      "query": 6.705522537231445e-08,
+      "gate": 1.1059455573558807e-09,
+      "output": 0.00020026415586471558,
+      "command_conditioning": 0.00016614794731140137
+    },
+    "optimizer_updates": 2,
+    "seconds": 3.017870165000204,
+    "gpu_peak_allocated_mib": 6210.65576171875,
+    "gpu_peak_reserved_mib": 6772.0
+  },
+  "causal_runtime_context_verification": {
+    "context_rollout_smoke_01": {
+      "steps": 10,
+      "context_frames_verified": 2,
+      "start_index": 0,
+      "task_success": null
+    },
+    "context_handoff_smoke_01": {
+      "steps": 10,
+      "context_frames_verified": 2,
+      "start_index": 650,
+      "task_success": null
+    }
+  },
+  "measured_joint_inputs": false,
+  "command_stage_is_not_grasp_confirmation": true,
+  "teacher_forcing_shift_remains": true
+}

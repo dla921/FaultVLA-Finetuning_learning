@@ -20,3 +20,5 @@ has been established by a smoke run. Legacy artifacts are preserved pending appr
 - visual_hand_validation.json and unit_tests_visual_hand.txt: optional camera-stage hand supervisor smoke/logic checks; not a full-trained grasp-success result.
 
 - rollout_start_validation.json and unit_tests_rollout_start.txt: expert-prefix diagnostic initialization, source-index continuity and explicit exclusion from full-task success.
+
+- command_context_validation.json and unit_tests_command_context.txt: causal command-stage conditioning, GPU weight updates, warm-start and per-camera applied-history parity checks. No full trained task-success result.

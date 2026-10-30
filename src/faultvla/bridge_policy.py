@@ -37,14 +37,16 @@ class BridgeHead(torch.nn.Module):
         if reset_output:
             torch.nn.init.xavier_uniform_(self.network.fc2.weight)
             torch.nn.init.zeros_(self.network.fc2.bias)
-    def forward(self,hidden):
+    def conditioning(self,batch,context=None):
+        return self.null_proprio.expand(batch,-1,-1)
+    def forward(self,hidden,context=None):
         h=hidden.float();batch=h.shape[0];dim=self.network.fc2.in_features
         if h.shape[1]!=len(self.network.mlp_resnet_blocks)+1 or h.shape[2]<=self.patches:
             raise ValueError('Unexpected multi-layer token layout')
         x=torch.zeros((batch,8,7*dim),device=h.device,dtype=h.dtype)
         # Learned constant token replaces the sensor-conditioned upstream proprio token.
         action=self.network(x,h_a=h[:,:,self.patches:],h_t=h[:,:,:self.patches],
-                            p=self.null_proprio.expand(batch,-1,-1))[:,:5]
+                            p=self.conditioning(batch,context))[:,:5]
         visual=self.visual(h[:,-1,:self.patches].mean(1))
         return action,visual
 
@@ -56,6 +58,8 @@ class BridgePolicy:
         self.head=BridgeHead(self.extract.policy.head.model,self.extract.patches)
         self.head.load_state_dict(payload['head']);self.head.eval()
         self.stats=payload['statistics'];self.arm_limits=np.asarray(payload['arm_limits'])
+    def action_from_hidden(self,hidden):
+        return self.head(hidden)
     def predict(self,rgb,task):
         from faultvla.hand_controller import HandController
         from faultvla.stablegrasp import VISUAL_STATES
@@ -64,7 +68,7 @@ class BridgePolicy:
         with torch.no_grad():
             hidden=self.extract(rgb,task)
             self.last_camera_feature=hidden[:,-1].float().mean(1).detach().cpu().squeeze(0)
-            action,visual=self.head(hidden)
+            action,visual=self.action_from_hidden(hidden)
         commands=action[0].cpu().numpy()*np.array(self.stats['std'])+np.array(self.stats['mean'])
         probabilities=torch.softmax(visual[0],dim=-1).cpu().numpy()
         if not np.isfinite(commands).all() or not np.isfinite(probabilities).all():raise ValueError('Nonfinite prediction')

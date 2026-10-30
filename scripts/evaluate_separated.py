@@ -81,6 +81,11 @@ def main():
   payload=torch.load(a.trained,map_location='cpu',weights_only=True)
   c=json.loads((R/'configs/checkpoints.json').read_text())[payload['base_model']]
   policy=load_policy(R/c['checkpoint'],c['unnorm_key'],a.trained)
+  if start_index and hasattr(policy,'observe_issued_command'):
+   # These commands were actually executed during diagnostic initialization.
+   with np.load(ep/'data.npz') as z:past_issued=z['action'][:start_index].copy()
+   for issued in past_issued:policy.observe_issued_command(np.clip(issued,m.actuator_ctrlrange[:,0],m.actuator_ctrlrange[:,1]))
+   del past_issued
  judge=supervisor=None;hand_events=[];hand_decision=None;initial_hand_probabilities=None
  if a.hand_judge:
   from faultvla.visual_hand import VisualHandJudge,HandSupervisor,CLASSES
@@ -127,13 +132,16 @@ def main():
     limited_steps+=int(np.any(np.abs(applied-requested)>1e-12))
     max_delta=np.maximum(max_delta,np.abs(applied-previous));previous=applied.copy()
     d.ctrl[:]=applied
+    if policy and hasattr(policy,'observe_issued_command'):policy.observe_issued_command(applied.copy())
     mujoco.mj_step(m,d,nstep=nsub)
     if not np.isfinite(d.qpos).all() or any(w.number for w in d.warning):raise RuntimeError('Invalid physics state/warning')
     mujoco.mj_forward(m,d)
     cup=d.body('demo_cube').xpos.copy();max_lift=max(max_lift,float(cup[2]-source[2]))
     record=dict(step=k,source_index=start_index+k,elapsed_after_handoff_s=float(d.time)-handoff_time,time=float(d.time),cup_xyz=cup.tolist(),command=d.ctrl.tolist(),requested_command=requested.tolist())
     telemetry=observe(m,d);diagnostics.update(d.time,telemetry);record['diagnostics']=telemetry
-    if policy and k%5==0:record['visual_probabilities']=prediction['visual_probabilities']
+    if policy and k%5==0:
+     record['visual_probabilities']=prediction['visual_probabilities']
+     if 'command_context' in prediction:record['policy_command_context']=prediction['command_context']
     if judge and k%5==0:
      record['visual_hand_decision']={key:value for key,value in hand_decision.items() if key!='targets'}
      record['vla_hand_commands']=prediction['hand_commands'].tolist()
@@ -151,6 +159,7 @@ def main():
   success=bool(max_lift>.015 and np.linalg.norm(final[:2]-target[:2])<.03 and upright>.95
                and 'table2' in contacts and not any(n and n.startswith('contact_') for n in contacts))
   summary=dict(mode=a.mode,episode=a.episode,split=split,trained=str(a.trained) if a.trained else None,
+   uses_issued_command_context=bool(policy and hasattr(policy,'observe_issued_command')),
    steps=steps,complete_episode=complete,task_success=success if complete else None,
    initialization=dict(diagnostic=diagnostic_start,method='expert_prefix_physics_replay' if start_index else 'original_initial_state',
     source_start_index=start_index,source_start_phase=start_phase,expert_prefix_steps=start_index,
@@ -168,7 +177,7 @@ def main():
    max_lift_m=max_lift,final_cup_xyz=final.tolist(),target_reference_xyz=target.tolist(),
    upright_cos=upright,contacts=contacts,seconds=time.monotonic()-started,
    mujoco_version=mujoco.__version__,source_mujoco_version='3.3.7',render_backend=a.backend,
-   note='Replay is source-action physics validation, not learned policy performance' if not policy else 'Policy uses RGB/task only; no expert actions or states after initialization')
+   note='Replay is source-action physics validation, not learned policy performance' if not policy else 'Policy uses RGB/task plus causal issued-command history when supported; no expert future actions or measured robot/object state after initialization')
   (a.output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
   print(json.dumps(summary,indent=2),flush=True)
  finally:

@@ -141,3 +141,10 @@ remain supported. These are adapted experiments, not paper-exact reproduction.
 trained camera-based close/release decision supplement. It is opt-in via
 --hand-judge, uses no simulator ground-truth inputs, and does not modify arm
 weights. It is experimental and does not guarantee grasp readiness or task success.
+
+## Causal command-history Policy
+
+[docs/COORDINATED_POLICY.md](docs/COORDINATED_POLICY.md) documents a separate
+GPU Policy experiment conditioned on previously issued commands and command-derived
+hand stage. It preserves existing checkpoints and uses no measured joint/object
+state. New training entrypoint: scripts/train_coordinated.py.

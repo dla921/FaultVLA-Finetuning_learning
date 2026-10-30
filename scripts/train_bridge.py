@@ -14,20 +14,37 @@ def main():
  p.add_argument('--model',choices=['object','spatial'],default='object')
  p.add_argument('--epochs',type=int,default=10);p.add_argument('--stride',type=int,default=5)
  p.add_argument('--learning-rate',type=float,default=1e-4);p.add_argument('--grad-accumulation',type=int,default=16)
+ p.add_argument('--command-context',action='store_true',help='Condition on past issued commands and command-derived hand stage')
+ p.add_argument('--init-policy',type=Path,help='Optional old Bridge checkpoint for context-mode initialization')
  p.add_argument('--delta-loss-weight',type=float,default=.1);p.add_argument('--smoke',action='store_true')
  a=p.parse_args()
  if min(a.epochs,a.stride,a.grad_accumulation)<1:p.error('Positive epochs/stride/accumulation required')
  if not math.isfinite(a.learning_rate) or a.learning_rate<=0 or not math.isfinite(a.delta_loss_weight) or a.delta_loss_weight<0:p.error('Invalid loss/rate')
+ if a.init_policy and not a.command_context:p.error('--init-policy requires --command-context')
+ if a.init_policy and not a.init_policy.is_file():p.error('Initial policy checkpoint does not exist')
  a.output.mkdir(parents=True,exist_ok=False);torch.manual_seed(7);np.random.seed(7)
  root=R/'data/SO101_StableGrasp200';stats=separated_statistics(root)
  c=json.loads((R/'configs/checkpoints.json').read_text())[a.model]
  extract=BridgeExtractor(R/c['checkpoint'],c['unnorm_key'])
- head=BridgeHead(extract.policy.head.model,extract.patches,reset_output=True).train()
+ contract=BRIDGE_CONTRACT;filename='bridge_policy.pt'
+ Head=BridgeHead
+ if a.command_context:
+  from faultvla.coordinated_policy import CoordinatedHead,CONTRACT as CONTEXT_CONTRACT
+  Head=CoordinatedHead;contract=CONTEXT_CONTRACT;filename='context_policy.pt'
+ head=Head(extract.policy.head.model,extract.patches,reset_output=not bool(a.init_policy)).train()
+ if a.init_policy:
+  initial_payload=torch.load(a.init_policy,map_location='cpu',weights_only=True)
+  if initial_payload.get('contract') not in (BRIDGE_CONTRACT,contract) or initial_payload['base_model']!=a.model:raise ValueError('Incompatible initial Policy')
+  for key in ['mean','std']:
+   if not np.allclose(initial_payload['statistics'][key],stats[key],rtol=1e-6,atol=1e-8):raise ValueError('Normalization differs from initial Policy')
+  incompatible=head.load_state_dict(initial_payload['head'],strict=False)
+  if incompatible.unexpected_keys or any(not key.startswith('context_projection.') for key in incompatible.missing_keys):raise ValueError(str(incompatible))
+  del initial_payload
  params=[p for p in head.parameters() if p.requires_grad]
  optimizer=torch.optim.AdamW(params,lr=a.learning_rate,weight_decay=.01)
  max_ep=1 if a.smoke else None;max_samples=3 if a.smoke else None
  def records(split,shuffle=None):
-  return separated_samples(root,split,max_ep,max_samples,stride=a.stride,evenly=a.smoke,shuffle_seed=shuffle)
+  return separated_samples(root,split,max_ep,max_samples,stride=a.stride,evenly=a.smoke,shuffle_seed=shuffle,command_statistics=stats if a.command_context else None)
  def count(split):
   total=0
   for name in split_ids(root,split)[:max_ep]:
@@ -36,7 +53,7 @@ def main():
   return total
  counts={s:count(s) for s in ['train','validation']}
  settings={k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()}
- settings.update(contract=BRIDGE_CONTRACT,counts=counts,trainable_parameters=sum(p.numel() for p in params),vlm_frozen=True,lora=False)
+ settings.update(contract=contract,counts=counts,trainable_parameters=sum(p.numel() for p in params),vlm_frozen=True,lora=False)
  (a.output/'settings.json').write_text(json.dumps(settings,indent=2))
  steps_per_epoch=math.ceil(counts['train']/a.grad_accumulation);total_updates=steps_per_epoch*a.epochs
  warmup=max(1,round(total_updates*.1));updates=0
@@ -46,12 +63,14 @@ def main():
  scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lr_factor)
  checks={'query':head.network.mlp_resnet_blocks[0].q_proj.weight,
          'gate':head.network.mlp_resnet_blocks[0].gating_factor,'output':head.network.fc2.weight}
+ if a.command_context:checks['command_conditioning']=head.context_projection[0].weight
  before={key:param.detach().cpu().clone() for key,param in checks.items()}
  mean=torch.tensor(stats['mean'],device='cuda',dtype=torch.float32);std=torch.tensor(stats['std'],device='cuda',dtype=torch.float32)
  history=[];best=float('inf');started=time.monotonic()
  def loss_for(sample):
   hidden=extract(sample['rgb'],sample['task'])
-  action,visual=head(hidden)
+  context=torch.tensor(sample['command_context'],device='cuda').unsqueeze(0) if a.command_context else None
+  action,visual=head(hidden,context)
   target=(torch.tensor(sample['action'],device='cuda',dtype=torch.float32)-mean)/std
   l1=torch.nn.functional.l1_loss(action[0],target)
   delta=torch.nn.functional.l1_loss(action[0,1:]-action[0,:-1],target[1:]-target[:-1])
@@ -83,10 +102,10 @@ def main():
    best=metric['validation']
    import mujoco
    m=mujoco.MjModel.from_xml_path(str(root/'scene.xml'))
-   payload=dict(contract=BRIDGE_CONTRACT,head={k:v.detach().cpu() for k,v in head.state_dict().items()},
+   payload=dict(contract=contract,head={k:v.detach().cpu() for k,v in head.state_dict().items()},
                 statistics=stats,base_model=a.model,arm_limits=m.actuator_ctrlrange[:5].tolist(),
                 epoch=epoch,validation_loss=best,settings=settings,patches=extract.patches)
-   temporary=a.output/'bridge_policy.tmp';torch.save(payload,temporary);temporary.replace(a.output/'bridge_policy.pt')
+   temporary=a.output/'bridge_policy.tmp';torch.save(payload,temporary);temporary.replace(a.output/filename)
   (a.output/'metrics.json').write_text(json.dumps(dict(history=history,parameter_changes=changes,optimizer_updates=updates,seconds=time.monotonic()-started,gpu_peak_allocated_mib=torch.cuda.max_memory_allocated()/2**20,gpu_peak_reserved_mib=torch.cuda.max_memory_reserved()/2**20),indent=2))
- print('Saved Bridge Attention policy; query/gate/output weights updated, VLM frozen',flush=True)
+ print('Saved coordinated Bridge policy; command conditioning updated, VLM frozen' if a.command_context else 'Saved Bridge Attention policy; query/gate/output weights updated, VLM frozen',flush=True)
 if __name__=='__main__':main()
