@@ -1,0 +1,96 @@
+{
+  "scope": "Two original-action full physics replays and one 10-step smoke-policy connection; remote trained model not evaluated",
+  "runs": [
+    {
+      "mode": "replay",
+      "episode": "episode_180",
+      "trained": null,
+      "steps": 1890,
+      "complete_episode": true,
+      "task_success": true,
+      "max_lift_m": 0.07369903239969812,
+      "final_cup_xyz": [
+        0.26525447913780315,
+        0.12634163187566905,
+        0.11446362464581336
+      ],
+      "target_reference_xyz": [
+        0.26484120168259856,
+        0.12647392648858719,
+        0.11446362464581333
+      ],
+      "upright_cos": 1.0000000000000004,
+      "contacts": [
+        "table2",
+        "table2",
+        "table2"
+      ],
+      "seconds": 14.376892186002806,
+      "mujoco_version": "3.17.0",
+      "source_mujoco_version": "3.3.7",
+      "render_backend": "egl",
+      "note": "Replay is source-action physics validation, not learned policy performance"
+    },
+    {
+      "mode": "replay",
+      "episode": "episode_081",
+      "split": "test",
+      "trained": null,
+      "steps": 1890,
+      "complete_episode": true,
+      "task_success": true,
+      "max_lift_m": 0.07429574394510134,
+      "final_cup_xyz": [
+        0.26488300482092353,
+        0.1264191669420702,
+        0.11446362464581339
+      ],
+      "target_reference_xyz": [
+        0.2647462256199573,
+        0.12641844106395117,
+        0.11446362464581332
+      ],
+      "upright_cos": 1.0000000000000007,
+      "contacts": [
+        "table2",
+        "table2",
+        "table2"
+      ],
+      "seconds": 13.818970234016888,
+      "mujoco_version": "3.17.0",
+      "source_mujoco_version": "3.3.7",
+      "render_backend": "egl",
+      "note": "Replay is source-action physics validation, not learned policy performance"
+    },
+    {
+      "mode": "policy",
+      "episode": "episode_180",
+      "trained": "results/separated_smoke/separated_policy.pt",
+      "steps": 10,
+      "complete_episode": false,
+      "task_success": null,
+      "max_lift_m": 0.0,
+      "final_cup_xyz": [
+        0.25987477136616793,
+        -0.13003122567420017,
+        0.11447220520479855
+      ],
+      "target_reference_xyz": [
+        0.26484120168259856,
+        0.12647392648858719,
+        0.11446362464581333
+      ],
+      "upright_cos": 1.0,
+      "contacts": [
+        "table1",
+        "table1",
+        "table1"
+      ],
+      "seconds": 0.9559672000468709,
+      "mujoco_version": "3.17.0",
+      "source_mujoco_version": "3.3.7",
+      "render_backend": "egl",
+      "note": "Policy uses RGB/task only; no expert actions or states after initialization"
+    }
+  ]
+}

@@ -14,9 +14,9 @@ policy prediction accepts no simulator state. The monitor's location probabiliti
 are not evidence of contact force, task success or a specific failed actuator.
 
 Inference: SeparatedPolicy.predict(rgb,task) returns synchronized arm and hand
-chunks plus visual probabilities. It does not select recovery actions or run a
-robot. The downstream executor must implement 50 Hz command execution/10 Hz
-camera replanning. A temporal failure monitor and recovery demonstrations remain
+chunks plus visual probabilities. It does not select recovery actions. scripts/evaluate_separated.py implements
+a simulated executor with 50 Hz commands and 10 Hz camera replanning. Simulation
+time pauses during inference; real-time hardware control is not validated. A temporal failure monitor and recovery demonstrations remain
 future work. Normal-only data cannot validate fault diagnosis or fault recovery.
 
 Old joint_readout.pt files must be retrained as separated_policy.pt. Previous

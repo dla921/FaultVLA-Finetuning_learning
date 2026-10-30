@@ -76,7 +76,9 @@ This writes commands to JSON; it does not move a robot.
 The arm and hand chunks must execute synchronously at 50 Hz; acquire a fresh RGB
 frame and replan every 100 ms. This is the dataset timing requirement, not a measured
 real-time guarantee. A real controller/simulator must implement and benchmark this loop.
-The package does not yet provide a validated closed-loop runner for this architecture.
+`scripts/evaluate_separated.py` provides a MuJoCo closed-loop runner. Physics replay
+and a short smoke-policy connection were tested locally; a fully trained policy
+has not yet been evaluated. See docs/MUJOCO_EVALUATION.md.
 There is no automatic recovery supervisor or reliable fault detector trained from
 these normal-only demonstrations. Add failure/recovery data and temporal visual
 monitoring before claiming fault-tolerant operation.

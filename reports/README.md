@@ -8,3 +8,5 @@
 
 No full training, closed-loop success, real hardware or fault-recovery performance
 has been established by a smoke run. Legacy artifacts are preserved pending approval.
+
+- mujoco_evaluation_validation.json: original-action physics replay and short RGB-policy connection only; not a trained baseline task-success result.
