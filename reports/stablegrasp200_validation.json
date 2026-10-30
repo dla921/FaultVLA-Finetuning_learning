@@ -1,0 +1,50 @@
+{
+  "episodes": 200,
+  "images": 75600,
+  "control_steps": 378000,
+  "split_counts": {
+    "train": 160,
+    "validation": 20,
+    "test": 20
+  },
+  "approach_slide_mm": {
+    "min": 0.0,
+    "median": 0.0,
+    "max": 0.7829480154929132
+  },
+  "prelift_slide_mm": {
+    "min": 7.427842199869404,
+    "median": 8.833961610572857,
+    "max": 10.762634055279442
+  },
+  "grasp_hold_drift_mm": {
+    "min": 0.0527080388041345,
+    "median": 0.07021293358825656,
+    "max": 0.09787830649643625
+  },
+  "transport_max_tilt_deg": {
+    "min": 4.691176238984975,
+    "median": 5.015036211681695,
+    "max": 5.349681915637006
+  },
+  "final_jitter_mm": {
+    "min": 0.0,
+    "median": 0.0,
+    "max": 0.0
+  },
+  "max_sampled_penetration_mm": {
+    "min": 0.0,
+    "median": 0.0,
+    "max": 0.18148276458959495
+  },
+  "thumb_below_rim_min_mm": {
+    "min": 15.014952311683412,
+    "median": 16.651094432425765,
+    "max": 17.906412980517338
+  },
+  "thumb_below_rim_max_mm": {
+    "min": 15.343500140136273,
+    "median": 16.969784504175248,
+    "max": 18.471445823842718
+  }
+}

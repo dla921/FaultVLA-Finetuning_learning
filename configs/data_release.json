@@ -1,33 +1,34 @@
 {
   "repository": "dla921/FaultVLA-Finetuning_learning",
-  "tag": "dataset-wide200-v1",
-  "dataset": "cartesian_demos_v2_wide200",
+  "tag": "dataset-stablegrasp200-v1",
+  "dataset": "SO101_StableGrasp200",
   "episodes": 200,
   "splits": {
     "train": 160,
     "validation": 20,
     "test": 20
   },
+  "format": "zip",
   "assets": [
     {
-      "name": "wide200-01-of-04.tar.gz",
-      "size": 460330798,
-      "sha256": "d24d02885ba5c0706387d4add205e895778ee577e2a6bc541066185a6c178992"
+      "name": "SO101_StableGrasp200_Part1.zip",
+      "size": 274571826,
+      "sha256": "f13d8734a82b5ff5847a641546b52008d2b12c5775a1482a679758c86b22ea46"
     },
     {
-      "name": "wide200-02-of-04.tar.gz",
-      "size": 457425902,
-      "sha256": "f2fdf219cdfcb633ca369761a2a84ad79224cd8c92eccdc1fc66255bf5079fbf"
+      "name": "SO101_StableGrasp200_Part2.zip",
+      "size": 257137427,
+      "sha256": "c246072d6382b1622c5897e73999bfc8af5c3d20ca8a725ca1b1d4b9b2049059"
     },
     {
-      "name": "wide200-03-of-04.tar.gz",
-      "size": 462191901,
-      "sha256": "f414b7803fc121ba80b71604fd87ccbe2ccb817c36e7c02e025cf40bdf8b3833"
+      "name": "SO101_StableGrasp200_Part3.zip",
+      "size": 257110935,
+      "sha256": "c69ea7be912f2da870cfd218bf3835bfac3af1bdadd5017c65a601b531e62d81"
     },
     {
-      "name": "wide200-04-of-04.tar.gz",
-      "size": 457790300,
-      "sha256": "b3966db05ec00a4142b2ffb2a9a43b4794eaef5b5eb7cd98da25459b530f9379"
+      "name": "SO101_StableGrasp200_Part4.zip",
+      "size": 257200628,
+      "sha256": "81c6e373861c48a954d045495bde3c351793a159d9e2fd327fc7f53b52db5e20"
     }
   ]
 }

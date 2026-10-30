@@ -1,3 +1,5 @@
+> LEGACY: This document describes the previous Cartesian/wide200 experiment. For current training use README.md and docs/STABLEGRASP200.md.
+
 # 넓어진 테이블 정상 시연 200개
 
 검증을 완료한 데이터: `data/cartesian_demos_v2_wide200/`.

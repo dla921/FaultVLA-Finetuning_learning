@@ -1,3 +1,5 @@
+> LEGACY: This document describes the previous Cartesian/wide200 experiment. For current training use README.md and docs/STABLEGRASP200.md.
+
 ﻿# SO-101 + AmazingHand / VLA-Adapter-Pro 연동
 
 ## 현재 상태 (2026-10-26)

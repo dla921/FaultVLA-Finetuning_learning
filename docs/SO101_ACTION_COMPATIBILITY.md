@@ -1,3 +1,5 @@
+> LEGACY: This document describes the previous Cartesian/wide200 experiment. For current training use README.md and docs/STABLEGRASP200.md.
+
 ﻿# SO-101 + AmazingHand 행동 공간 호환성 검토
 
 2026-10-27 별도 Codex 검토: 현재 MuJoCo 모델과 Action Adapter를 통해 정상 컵 운반용 7차원 행동을 팔 5축·손 8축 명령으로 연결할 수 있다. 원본 LIBERO 정책의 작업 성공이나 실물 호환성을 뜻하지 않는다.

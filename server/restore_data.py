@@ -1,5 +1,5 @@
-"""Restore release data with checksums and confined, regular-file-only extraction."""
-import argparse,hashlib,json,subprocess,tarfile,os
+"""Download public ZIP assets and restore with checksums and confined extraction."""
+import argparse,hashlib,json,shutil,urllib.request,zipfile
 from pathlib import Path,PurePosixPath
 R=Path(__file__).resolve().parents[1]
 def digest(path):
@@ -15,30 +15,33 @@ def main():
   target=cache/asset['name']
   if not target.exists():
    if a.local_assets:raise FileNotFoundError(target)
-   subprocess.run(['gh','release','download',m['tag'],'--repo',m['repository'],'--pattern',asset['name'],'--dir',str(cache)],check=True)
+   url=f"https://github.com/{m['repository']}/releases/download/{m['tag']}/{asset['name']}"
+   partial=target.with_suffix('.partial')
+   with urllib.request.urlopen(url) as src,partial.open('wb') as dst:shutil.copyfileobj(src,dst,2**20)
+   partial.rename(target)
   if target.stat().st_size!=asset['size'] or digest(target)!=asset['sha256']:raise ValueError('Corrupt archive: '+str(target))
   print('Verified',target.name,flush=True)
  destination=R/'data';destination.mkdir(exist_ok=True)
  base=destination/m['dataset'];marker=base/'.release-restored.json'
  if marker.exists() and json.loads(marker.read_text())==m:
-  print('Already restored; run server/preflight.py to recheck data');return
- stage=destination/(m['dataset']+'.extracting')
- stage.mkdir(exist_ok=True)
- # A failed extraction may be retried in this dedicated staging directory.
- for asset in m['assets']:
-  with tarfile.open(cache/asset['name'],'r:gz') as tar:
-   for member in tar:
-    path=PurePosixPath(member.name)
-    if path.is_absolute() or '..' in path.parts or not path.parts or path.parts[0]!=m['dataset'] or not member.isfile():
-     raise ValueError('Unsafe archive member: '+member.name)
-    out=(stage.joinpath(*path.parts[1:])).resolve()
-    if not out.is_relative_to(stage.resolve()):raise ValueError('Path escaped extraction directory')
-    out.parent.mkdir(parents=True,exist_ok=True)
-    with tar.extractfile(member) as src,out.open('wb') as dst:
-     import shutil
-     shutil.copyfileobj(src,dst,2**20)
-  print('Extracted',asset['name'],flush=True)
+  print('Already restored; run server/preflight.py --data-only');return
  if base.exists():raise FileExistsError('Existing dataset preserved: '+str(base))
+ stage=destination/(m['dataset']+'.extracting');stage.mkdir(exist_ok=True)
+ seen=set()
+ for asset in m['assets']:
+  with zipfile.ZipFile(cache/asset['name']) as z:
+   for member in z.infolist():
+    path=PurePosixPath(member.filename)
+    if path.is_absolute() or '..' in path.parts or not path.parts or path.parts[0]!=m['dataset'] or '\\' in member.filename:
+     raise ValueError('Unsafe member: '+member.filename)
+    if member.is_dir():continue
+    if member.filename in seen or (member.external_attr>>16)&0o170000==0o120000:raise ValueError('Duplicate/symlink')
+    seen.add(member.filename)
+    out=stage.joinpath(*path.parts[1:]).resolve()
+    if not out.is_relative_to(stage.resolve()):raise ValueError('Path escaped stage')
+    out.parent.mkdir(parents=True,exist_ok=True)
+    with z.open(member) as src,out.open('wb') as dst:shutil.copyfileobj(src,dst,2**20)
+  print('Extracted',asset['name'],flush=True)
  (stage/'.release-restored.json').write_text(json.dumps(m,indent=2));stage.rename(base)
  print('Restored',base)
 if __name__=='__main__':main()

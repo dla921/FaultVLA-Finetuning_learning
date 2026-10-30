@@ -1,0 +1,11 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train": 1.5249154567718506,
+      "validation": 1.5281391143798828
+    }
+  ],
+  "smoke": true,
+  "statistics_episodes": 160
+}

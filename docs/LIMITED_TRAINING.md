@@ -1,3 +1,5 @@
+> LEGACY: This document describes the previous Cartesian/wide200 experiment. For current training use README.md and docs/STABLEGRASP200.md.
+
 ﻿# 8GB GPU용 최소 출력층 학습
 
 2026-10-27. 현재 구현은 **행동 헤드의 마지막 선형층(fc2)만 학습하는 제한 실험**이다.
