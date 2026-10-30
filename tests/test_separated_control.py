@@ -31,6 +31,9 @@ class SeparatedControlTests(unittest.TestCase):
    rows=list(separated_samples(r,'train',1,2))
    self.assertNotIn('state',rows[0]);self.assertNotIn('cup_xyz',rows[0])
    self.assertEqual(rows[0]['action'].shape,(5,7))
+   selected=list(separated_samples(r,'train',1,2,evenly=True,shuffle_seed=3))
+   self.assertEqual({x['index'] for x in selected},{0,5})
+   with self.assertRaises(ValueError):list(separated_samples(r,'train',1,2,stride=0))
    np.testing.assert_allclose(rows[0]['action'][:,5:],np.tile([1,.7],(5,1)))
  def test_visual_labels_are_location_labels(self):
   np.testing.assert_array_equal(visual_labels([[0,0,0],[.4,0,.1],[1,0,0]]),[0,1,2])

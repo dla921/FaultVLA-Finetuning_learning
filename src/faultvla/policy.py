@@ -1,5 +1,8 @@
 """Checkpoint-backed inference only: missing weights are a hard error."""
 import json
+import os
+# Object/Spatial-Pro checkpoint dimensions must not depend on output filenames.
+os.environ['VLA_ROBOT_PLATFORM'] = 'LIBERO'
 from pathlib import Path
 from types import SimpleNamespace
 import numpy as np

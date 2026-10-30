@@ -1,5 +1,12 @@
 # FaultVLA-Finetuning_learning
 
+Training paths:
+- `server/train.py`: original frozen-feature linear baseline.
+- `scripts/train_bridge.py`: GPU finetuning of the actual Pro Policy/Bridge Attention.
+- `scripts/check_action_predictions.py`: offline action-error diagnostic for either checkpoint.
+
+See [Policy training instructions](docs/POLICY_TRAINING.md) before switching paths.
+
 Public server package for **SO101_StableGrasp200**: SO-101 arm + AmazingHand,
 200 successful simulated cup transfers with thumb side contact.
 
@@ -118,3 +125,12 @@ success, fault recovery and real-robot performance have not been measured.
 
 Data and models are simulated experiment assets supplied by the user. The collection
 covers a narrow initial-position range, not broad real-world generalization.
+
+## Policy finetuning and baseline diagnostics
+
+The original server/train.py path is a frozen-feature linear baseline. For offline
+action prediction errors and GPU training of the actual 24-block Pro Policy/Bridge
+Attention, follow [docs/POLICY_TRAINING.md](docs/POLICY_TRAINING.md). The new
+scripts/train_bridge.py path keeps the VLM frozen, does not use LoRA or joint
+sensor inputs, and preserves separate hand control. Existing baseline checkpoints
+remain supported. These are adapted experiments, not paper-exact reproduction.

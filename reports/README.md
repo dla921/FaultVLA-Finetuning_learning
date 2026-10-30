@@ -12,3 +12,5 @@ has been established by a smoke run. Legacy artifacts are preserved pending appr
 - mujoco_evaluation_validation.json: original-action physics replay and short RGB-policy connection only; not a trained baseline task-success result.
 
 - command_limiter_validation.json and unit_tests_command_limiter.txt: optional command-rate filter bounds and short simulation checks, not task success.
+
+- bridge_policy_validation.json and unit_tests_bridge_policy.txt: actual Pro Policy GPU weight updates, old/new offline diagnostic and short MuJoCo reload checks. No full model task-success claim.

@@ -49,6 +49,14 @@ class SeparatedPolicy:
         arm=np.clip(commands[:,:5],self.arm_limits[:,0],self.arm_limits[:,1])
         hand=np.clip(commands[:,5:],0,1)
         probabilities=torch.softmax(output[35:],dim=-1).numpy()
-        return dict(arm_targets_rad=arm,hand_commands=hand,hand_targets_rad=HandController.targets(hand),
+        return dict(raw_commands=commands,arm_targets_rad=arm,hand_commands=hand,hand_targets_rad=HandController.targets(hand),
                     visual_state=VISUAL_STATES[int(probabilities.argmax())],
                     visual_probabilities=dict(zip(VISUAL_STATES,probabilities.tolist())))
+
+
+def load_policy(checkpoint,key,trained):
+    payload=torch.load(trained,map_location='cpu',weights_only=True)
+    if payload.get('contract')==CONTRACT:return SeparatedPolicy(checkpoint,key,trained)
+    from faultvla.bridge_policy import BRIDGE_CONTRACT,BridgePolicy
+    if payload.get('contract')==BRIDGE_CONTRACT:return BridgePolicy(checkpoint,key,trained)
+    raise ValueError('Unknown policy contract')

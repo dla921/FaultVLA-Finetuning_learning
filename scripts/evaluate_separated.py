@@ -54,10 +54,10 @@ def main():
  policy=None
  if a.mode=='policy':
   import torch
-  from faultvla.stablegrasp_policy import SeparatedPolicy
+  from faultvla.stablegrasp_policy import load_policy
   payload=torch.load(a.trained,map_location='cpu',weights_only=True)
   c=json.loads((R/'configs/checkpoints.json').read_text())[payload['base_model']]
-  policy=SeparatedPolicy(R/c['checkpoint'],c['unnorm_key'],a.trained)
+  policy=load_policy(R/c['checkpoint'],c['unnorm_key'],a.trained)
  viewer=writer=renderer=None
  def rgb():
   rd.qpos[:]=d.qpos;mujoco.mj_kinematics(rm,rd);mujoco.mj_comPos(rm,rd);mujoco.mj_camlight(rm,rd)

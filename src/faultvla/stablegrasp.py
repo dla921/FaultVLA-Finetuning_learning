@@ -61,18 +61,28 @@ def visual_labels(cup_xyz):
     return labels
 
 
-def separated_samples(root,split,max_episodes=None,max_samples=None):
+def separated_samples(root,split,max_episodes=None,max_samples=None,stride=1,evenly=False,shuffle_seed=None):
     """Camera-only inputs; arm labels and hand synergies remain synchronized."""
     from faultvla.hand_controller import HandController
     root=Path(root)
-    for episode in split_ids(root,split)[:max_episodes]:
+    if stride<1:raise ValueError('Positive stride required')
+    rng=np.random.default_rng(shuffle_seed) if shuffle_seed is not None else None
+    episodes=split_ids(root,split)[:max_episodes]
+    if rng is not None:rng.shuffle(episodes)
+    for episode in episodes:
         ep=root/'episodes'/episode
         meta=json.loads((ep/'metadata.json').read_text())
         if not (meta['accepted'] and meta['images_saved'] and meta['task_success']):raise ValueError(episode)
         with np.load(ep/'data.npz') as z:
             labels=visual_labels(z['cup_xyz'])
-            for index in z['rgb_state_index'][:max_samples]:
-                index=int(index);action=z['action'][index:index+5].copy()
+            all_actions=z['action']
+            indices=z['rgb_state_index'][::stride]
+            if evenly and max_samples is not None and len(indices)>max_samples:
+                indices=indices[np.linspace(0,len(indices)-1,max_samples,dtype=int)]
+            else:indices=indices[:max_samples]
+            if rng is not None:rng.shuffle(indices)
+            for index in indices:
+                index=int(index);action=all_actions[index:index+5].copy()
                 if action.shape!=(5,13) or not np.isfinite(action).all():raise ValueError('Action chunk')
                 hand=HandController.encode(action[:,5:])
                 with Image.open(ep/'rgb'/f'{index:06d}.png') as im:rgb=np.array(im.convert('RGB'))

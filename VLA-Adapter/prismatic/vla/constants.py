@@ -5,6 +5,7 @@ Attempts to automatically identify the correct constants to set based on the Pyt
 training or evaluation. If it is unclear, defaults to using the LIBERO simulation benchmark constants.
 """
 import sys
+import os
 from enum import Enum
 
 # Qwen2.5-0.5B token constants
@@ -56,6 +57,11 @@ BRIDGE_CONSTANTS = {
 
 # Function to detect robot platform from command line arguments
 def detect_robot_platform():
+    explicit = os.environ.get('VLA_ROBOT_PLATFORM')
+    if explicit is not None:
+        if explicit not in {'LIBERO', 'CALVIN', 'ALOHA', 'BRIDGE'}:
+            raise ValueError('Invalid VLA_ROBOT_PLATFORM: ' + explicit)
+        return explicit
     cmd_args = " ".join(sys.argv).lower()
 
     if "libero" in cmd_args:
